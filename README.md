@@ -1,6 +1,6 @@
-## Proyecto Peluqueria - Grupo #6
+## Proyecto D'Pelos Peluquería - Grupo #6
 
-#Integrantes:
+# Integrantes:
 - Daniel Borja
 - Diego Orellana
 - Juan Escaffi
