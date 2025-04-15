@@ -1,3 +1,42 @@
 from django.db import models
 
-# Create your models here.
+class Usuario(models.Model):
+    nombre = models.CharField(max_length=100)
+    correo = models.EmailField(unique=True)
+    telefono = models.CharField(max_length=20, blank=True, null=True)
+    direccion = models.CharField(max_length=255, blank=True, null=True)
+
+    def __str__(self):
+        return self.nombre
+
+class Especialista(models.Model):
+    nombre = models.CharField(max_length=100)
+    apellido = models.CharField(max_length=100)
+    especialidad = models.CharField(max_length=100, blank=True, null=True)
+    foto_url = models.URLField(blank=True, null=True)
+    descripcion = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.nombre
+
+class Servicio(models.Model):
+    nombre = models.CharField(max_length=100)
+    descripcion = models.TextField(blank=True, null=True)
+    precio = models.DecimalField(max_digits=10, decimal_places=2)
+    duracion_estimada = models.IntegerField(help_text="Duración en minutos")
+    imagen_url = models.URLField(blank=True, null=True)
+
+class EspecialistaServicio(models.Model):
+    especialista_id = models.ForeignKey(Especialista, on_delete=models.CASCADE)
+    servicio_id = models.ForeignKey(Servicio, on_delete=models.CASCADE)
+
+class Reserva(models.Model):
+    usuario_id = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    especialista_id = models.ForeignKey(Especialista, on_delete=models.CASCADE)
+    servicio_id = models.ForeignKey(Servicio, on_delete=models.CASCADE)
+    fecha = models.DateField()
+    hora = models.TimeField()
+    estado = models.CharField(max_length=20, choices=[('pendiente', 'Pendiente'), ('confirmada', 'Confirmada'), ('cancelada', 'Cancelada')], default='pendiente')
+
+    def __str__(self):
+        return f"Reserva de {self.usuario_id} con {self.especialista_id} para {self.servicio_id} en {self.fecha} a las {self.hora}"
