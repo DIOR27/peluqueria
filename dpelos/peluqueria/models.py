@@ -1,13 +1,17 @@
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 
-class Usuario(models.Model):
-    nombre = models.CharField(max_length=100)
-    correo = models.EmailField(unique=True)
+class Usuario(AbstractUser):
+    ## Campos heredados:
+    # first_name
+    # last_name
+    # email
+    # password
     telefono = models.CharField(max_length=20, blank=True, null=True)
     direccion = models.CharField(max_length=255, blank=True, null=True)
 
     def __str__(self):
-        return self.nombre
+        return f"{self.first_name} {self.last_name}"
 
 class Especialista(models.Model):
     nombre = models.CharField(max_length=100)
@@ -37,6 +41,7 @@ class Reserva(models.Model):
     fecha = models.DateField()
     hora = models.TimeField()
     estado = models.CharField(max_length=20, choices=[('pendiente', 'Pendiente'), ('confirmada', 'Confirmada'), ('cancelada', 'Cancelada')], default='pendiente')
+    codigo_reserva = models.CharField(max_length=6, unique=True)
 
     def __str__(self):
         return f"Reserva de {self.usuario_id} con {self.especialista_id} para {self.servicio_id} en {self.fecha} a las {self.hora}"
