@@ -1,3 +1,5 @@
+# peluqueria/signals.py
+
 from django.db.models.signals import post_migrate
 from django.dispatch import receiver
 from django.contrib.auth.models import Group, Permission
@@ -10,16 +12,19 @@ def crear_grupos_y_permisos(sender, **kwargs):
     admin_group, _ = Group.objects.get_or_create(name="Administrador")
     cliente_group, _ = Group.objects.get_or_create(name="Cliente")
 
-    # Obtener el modelo de usuario personalizado
+    # Obtener el modelo personalizado de Usuario
     Usuario = apps.get_model('peluqueria', 'Usuario')
     content_type = ContentType.objects.get_for_model(Usuario)
 
-    # Permisos estándar para el modelo Usuario
+    # Asignar todos los permisos al grupo Administrador
     permisos_admin = Permission.objects.filter(content_type=content_type)
-
-    # Asignar todos los permisos del modelo Usuario al grupo Administrador
     admin_group.permissions.set(permisos_admin)
 
-    # Al grupo Cliente solo le damos permiso para cambiar su usuario
-    permiso_editar = Permission.objects.get(codename='change_usuario', content_type=content_type)
-    cliente_group.permissions.set([permiso_editar])
+    # Asignar solo permiso de edición al Cliente (verificamos si existe)
+    permiso_editar = Permission.objects.filter(
+        codename__startswith='change_',
+        content_type=content_type
+    ).first()
+
+    if permiso_editar:
+        cliente_group.permissions.set([permiso_editar])
