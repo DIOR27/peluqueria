@@ -1,8 +1,9 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
-from .views import UsuarioViewSet, EspecialistaViewSet, ServicioViewSet, EspecialistaServicioViewSet, ReservaViewSet
+from .views import GroupViewSet, UsuarioViewSet, EspecialistaViewSet, ServicioViewSet, EspecialistaServicioViewSet, ReservaViewSet
 
 default_router = DefaultRouter()
+default_router.register(r'roles', GroupViewSet, basename='rol')
 default_router.register(r'usuarios', UsuarioViewSet, basename='usuario')
 default_router.register(r'especialistas', EspecialistaViewSet, basename='especialista')
 default_router.register(r'servicios', ServicioViewSet, basename='servicio')

@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'peluqueria',
+    'peluqueria.apps.PeluqueriaConfig',
 ]
 
 MIDDLEWARE = [
@@ -80,7 +80,7 @@ DATABASES = {
         'NAME': 'dpelos',
         'USER': 'root',
         'PASSWORD': 'root',
-        'HOST': '172.17.0.3',
+        'HOST': '172.17.0.2',
         # 'HOST': 'localhost',
         'PORT': '3306',
     }
