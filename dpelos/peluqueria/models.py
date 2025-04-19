@@ -7,6 +7,7 @@ class Usuario(AbstractUser):
     # last_name
     # email
     # password
+    # rol (en lugar de groups)
     telefono = models.CharField(max_length=20, blank=True, null=True)
     direccion = models.CharField(max_length=255, blank=True, null=True)
 

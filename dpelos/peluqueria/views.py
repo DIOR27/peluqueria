@@ -6,6 +6,7 @@ from rest_framework import status
 from django.contrib.auth.hashers import make_password
 from .models import Usuario, Especialista, Servicio, EspecialistaServicio, Reserva
 from .serializers import UsuarioSerializer, GroupSerializer, EspecialistaSerializer, ServicioSerializer, EspecialistaServicioSerializer, ReservaSerializer
+from django.contrib.auth.models import Group
 
 class GroupViewSet(ReadOnlyModelViewSet):  # solo permite listar y ver detalles
     queryset = Group.objects.all()
@@ -29,7 +30,7 @@ class UsuarioViewSet(ModelViewSet):
         usuario = serializer.save()
 
         try:
-            nombre_grupo = data.get('groups')  # se espera una cadena como "Cliente" o "Administrador"
+            nombre_grupo = data.get('rol')  # se espera una cadena como "Cliente" o "Administrador"
 
             if not nombre_grupo:
                 # Asignar grupo Cliente por defecto
@@ -63,6 +64,63 @@ class UsuarioViewSet(ModelViewSet):
                 'Direccion': usuario.direccion,
             }
         }, status=status.HTTP_201_CREATED)
+    
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        data = request.data.copy()
+
+        usuario_actual = request.user
+
+        # Validar si el usuario actual es cliente
+        es_cliente = usuario_actual.groups.filter(name="Cliente").exists()
+        es_admin = usuario_actual.groups.filter(name="Administrador").exists()
+
+        # Si es cliente, solo puede editarse a sí mismo
+        if es_cliente and usuario_actual.id != instance.id:
+            return Response({'error': 'No tienes permiso para editar a otros usuarios.'}, status=403)
+
+        # Si cambia el correo, actualiza también el username
+        nuevo_email = data.get('email')
+        if nuevo_email:
+            data['username'] = nuevo_email
+
+        # Si es cliente, no puede cambiar el rol
+        if es_cliente and 'rol' in data:
+            data.pop('rol')
+
+        serializer = self.get_serializer(instance, data=data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        usuario = serializer.save()
+
+        # Si el usuario actual es admin y desea cambiar el rol
+        if es_admin and 'rol' in data:
+            nuevo_rol = data['rol']
+            try:
+                grupo = Group.objects.get(name=nuevo_rol)
+                usuario.groups.clear()
+                usuario.groups.add(grupo)
+
+                if nuevo_rol == "Administrador":
+                    usuario.is_staff = True
+                else:
+                    usuario.is_staff = False
+
+                usuario.save()
+
+            except Group.DoesNotExist:
+                return Response({'error': f'El grupo "{nuevo_rol}" no existe'}, status=400)
+
+        return Response({
+            'message': 'Usuario actualizado correctamente',
+            'usuario': {
+                'id': usuario.id,
+                'Email': usuario.email,
+                'Nombre': usuario.first_name,
+                'Apellido': usuario.last_name,
+                'Telefono': usuario.telefono,
+                'Direccion': usuario.direccion,
+            }
+        }, status=status.HTTP_200_OK)
 
 class EspecialistaViewSet(ModelViewSet):
     queryset = Especialista.objects.all()
