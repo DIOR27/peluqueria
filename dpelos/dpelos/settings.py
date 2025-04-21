@@ -139,3 +139,12 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'diegoorellana2706@gmail.com'
 EMAIL_HOST_PASSWORD = 'ptat ifqh shxb hsxf'
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.DjangoModelPermissions',
+    ),
+}

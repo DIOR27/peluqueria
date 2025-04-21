@@ -38,7 +38,7 @@ class UsuarioViewSet(ModelViewSet):
         usuario = serializer.save()
 
         try:
-            nombre_grupo = data.get('rol')  # se espera una cadena como "Cliente" o "Administrador"
+            nombre_grupo = data.get('rol').capitalize()  # se espera una cadena como "Cliente" o "Administrador"
 
             if not nombre_grupo:
                 # Asignar grupo Cliente por defecto
