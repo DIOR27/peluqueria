@@ -1,6 +1,18 @@
 import { useState } from "react";
 import { Button } from "../ui/Button";
 import { Sheet } from "../ui/Sheet";
+import Select from "react-select";
+
+const customStyles = {
+  control: (provided, state) => ({
+    ...provided,
+    borderColor: state.isFocused ? '#000000' : '#d1d5db',
+    boxShadow: state.isFocused ? '0 0 0 1px #000000' : 'none',
+    '&:hover': {
+      borderColor: state.isFocused ? '#000000' : '#9ca3af',
+    },
+  }),
+};
 
 export function AppointmentForm({ isOpen, onClose, appointment = null }) {
   const [formData, setFormData] = useState({
@@ -20,8 +32,7 @@ export function AppointmentForm({ isOpen, onClose, appointment = null }) {
     onClose();
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  const handleChange = (value, name) => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
@@ -40,8 +51,8 @@ export function AppointmentForm({ isOpen, onClose, appointment = null }) {
             type="text"
             name="clientName"
             value={formData.clientName}
-            onChange={handleChange}
-            className="w-full rounded-md border border-gray-300 px-3 py-2"
+            onChange={(e) => handleChange(e?.target?.value ?? "", 'clientName')}
+            className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
             required
           />
         </div>
@@ -50,38 +61,37 @@ export function AppointmentForm({ isOpen, onClose, appointment = null }) {
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Servicio
           </label>
-          <select
-            name="service"
-            value={formData.service}
-            onChange={handleChange}
-            className="w-full rounded-md border border-gray-300 px-3 py-2"
-            required
-          >
-            <option value="">Seleccionar servicio</option>
-            <option value="Corte de cabello">Corte de cabello</option>
-            <option value="Afeitado tradicional">Afeitado tradicional</option>
-            <option value="Perfilado de barba">Perfilado de barba</option>
-            <option value="Coloración">Coloración</option>
-          </select>
+          <Select
+            options={[
+              { value: "Corte de cabello", label: "Corte de cabello" },
+              { value: "Afeitado tradicional", label: "Afeitado tradicional" },
+              { value: "Perfilado de barba", label: "Perfilado de barba" },
+              { value: "Coloración", label: "Coloración" },
+            ]}
+            onChange={(e) => handleChange(e?.value ?? "", 'service')}
+            isClearable
+            styles={customStyles}
+            placeholder="Seleccionar servicio"
+          />
+
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Especialista
           </label>
-          <select
-            name="specialist"
-            value={formData.specialist}
-            onChange={handleChange}
-            className="w-full rounded-md border border-gray-300 px-3 py-2"
-            required
-          >
-            <option value="">Seleccionar especialista</option>
-            <option value="Carlos Rodríguez">Carlos Rodríguez</option>
-            <option value="Miguel Ángel">Miguel Ángel</option>
-            <option value="Daniel Torres">Daniel Torres</option>
-            <option value="Roberto Sánchez">Roberto Sánchez</option>
-          </select>
+          <Select
+            options={[
+              { value: "Carlos Rodríguez", label: "Carlos Rodríguez" },
+              { value: "Miguel Ángel", label: "Miguel Ángel" },
+              { value: "Daniel Torres", label: "Daniel Torres" },
+              { value: "Roberto Sánchez", label: "Roberto Sánchez" },
+            ]}
+            onChange={(e) => handleChange(e?.value ?? "", 'specialist')}
+            isClearable
+            styles={customStyles}
+            placeholder="Seleccionar especialista"
+          />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
@@ -94,8 +104,8 @@ export function AppointmentForm({ isOpen, onClose, appointment = null }) {
                 type="date"
                 name="date"
                 value={formData.date}
-                onChange={handleChange}
-                className="w-full rounded-md border border-gray-300 px-3 py-2"
+                onChange={(e) => handleChange(e?.target?.value ?? "", 'date')}
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
                 required
               />
             </div>
@@ -110,8 +120,8 @@ export function AppointmentForm({ isOpen, onClose, appointment = null }) {
                 type="time"
                 name="time"
                 value={formData.time}
-                onChange={handleChange}
-                className="w-full rounded-md border border-gray-300 px-3 py-2"
+                onChange={(e) => handleChange(e?.target?.value ?? "", 'time')}
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
                 required
               />
             </div>
@@ -122,18 +132,18 @@ export function AppointmentForm({ isOpen, onClose, appointment = null }) {
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Estado
           </label>
-          <select
-            name="status"
-            value={formData.status}
-            onChange={handleChange}
-            className="w-full rounded-md border border-gray-300 px-3 py-2"
-            required
-          >
-            <option value="pending">Pendiente</option>
-            <option value="confirmed">Confirmada</option>
-            <option value="completed">Completada</option>
-            <option value="cancelled">Cancelada</option>
-          </select>
+          <Select
+            options={[
+              { value: "pending", label: "Pendiente" },
+              { value: "confirmed", label: "Confirmada" },
+              { value: "completed", label: "Completada" },
+              { value: "cancelled", label: "Cancelada" },
+            ]}
+            onChange={(e) => handleChange(e?.value ?? "", 'status')}
+            isClearable
+            styles={customStyles}
+            placeholder="Seleccionar estado"
+          />
         </div>
 
         <div>
@@ -144,8 +154,8 @@ export function AppointmentForm({ isOpen, onClose, appointment = null }) {
             type="number"
             name="price"
             value={formData.price}
-            onChange={handleChange}
-            className="w-full rounded-md border border-gray-300 px-3 py-2"
+            onChange={(e) => handleChange(e?.target?.value ?? "", 'price')}
+            className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
             required
           />
         </div>
