@@ -22,7 +22,7 @@ class Especialista(models.Model):
     descripcion = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return self.nombre
+        return f'{self.nombre} {self.apellido} - {self.especialidad.capitalize()}'
 
 class Servicio(models.Model):
     nombre = models.CharField(max_length=100)
@@ -30,6 +30,9 @@ class Servicio(models.Model):
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     duracion_estimada = models.IntegerField(help_text="Duración en minutos")
     imagen_url = models.URLField(blank=True, null=True)
+
+    def __str__(self):
+        return self.nombre
 
 class EspecialistaServicio(models.Model):
     especialista_id = models.ForeignKey(Especialista, on_delete=models.CASCADE)
