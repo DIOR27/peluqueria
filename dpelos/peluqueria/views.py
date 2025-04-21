@@ -12,6 +12,7 @@ from datetime import datetime, timedelta
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.conf import settings
+from rest_framework.decorators import api_view
 
 import locale
 
@@ -22,7 +23,7 @@ class GroupViewSet(ReadOnlyModelViewSet):  # solo permite listar y ver detalles
 class UsuarioViewSet(ModelViewSet):
     queryset = Usuario.objects.all()
     serializer_class = UsuarioSerializer
-    # permission_classes = [DjangoModelPermissions]
+    permission_classes = [DjangoModelPermissions]
 
     def create(self, request, *args, **kwargs):
         data = request.data.copy()
@@ -132,22 +133,22 @@ class UsuarioViewSet(ModelViewSet):
 class EspecialistaViewSet(ModelViewSet):
     queryset = Especialista.objects.all()
     serializer_class = EspecialistaSerializer
-    # permission_classes = [DjangoModelPermissions]
+    permission_classes = [DjangoModelPermissions]
 
 class ServicioViewSet(ModelViewSet):
     queryset = Servicio.objects.all()
     serializer_class = ServicioSerializer
-    # permission_classes = [DjangoModelPermissions]
+    permission_classes = [DjangoModelPermissions]
 
 class EspecialistaServicioViewSet(ModelViewSet):
     queryset = EspecialistaServicio.objects.all()
     serializer_class = EspecialistaServicioSerializer
-    # permission_classes = [DjangoModelPermissions]
+    permission_classes = [DjangoModelPermissions]
 
 class ReservaViewSet(ModelViewSet):
     queryset = Reserva.objects.all()
     serializer_class = ReservaSerializer
-    # permission_classes = [DjangoModelPermissions]
+    permission_classes = [DjangoModelPermissions]
     
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -262,3 +263,12 @@ class ReservaViewSet(ModelViewSet):
                 'codigo_reserva': reserva.codigo_reserva
             }
         }, status=status.HTTP_201_CREATED)
+
+@api_view(['GET'])
+def obtener_reserva_por_codigo(request, codigo_reserva):
+    try:
+        reserva = Reserva.objects.get(codigo_reserva=codigo_reserva)
+        serializer = ReservaSerializer(reserva)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except Reserva.DoesNotExist:
+        return Response({'error': 'Reserva no encontrada'}, status=status.HTTP_404_NOT_FOUND)
