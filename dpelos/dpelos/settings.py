@@ -80,8 +80,8 @@ DATABASES = {
         'NAME': 'dpelos',
         'USER': 'root',
         'PASSWORD': 'root',
-        #'HOST': '172.17.0.2',
-        'HOST': 'localhost',
+        'HOST': '172.19.0.2',
+        # 'HOST': 'localhost',
         'PORT': '3306',
     }
 }

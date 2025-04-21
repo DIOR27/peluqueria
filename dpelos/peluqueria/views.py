@@ -132,22 +132,22 @@ class UsuarioViewSet(ModelViewSet):
 class EspecialistaViewSet(ModelViewSet):
     queryset = Especialista.objects.all()
     serializer_class = EspecialistaSerializer
-    permission_classes = [DjangoModelPermissions]
+    # permission_classes = [DjangoModelPermissions]
 
 class ServicioViewSet(ModelViewSet):
     queryset = Servicio.objects.all()
     serializer_class = ServicioSerializer
-    permission_classes = [DjangoModelPermissions]
+    # permission_classes = [DjangoModelPermissions]
 
 class EspecialistaServicioViewSet(ModelViewSet):
     queryset = EspecialistaServicio.objects.all()
     serializer_class = EspecialistaServicioSerializer
-    permission_classes = [DjangoModelPermissions]
+    # permission_classes = [DjangoModelPermissions]
 
 class ReservaViewSet(ModelViewSet):
     queryset = Reserva.objects.all()
     serializer_class = ReservaSerializer
-    permission_classes = [DjangoModelPermissions]
+    # permission_classes = [DjangoModelPermissions]
     
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -211,7 +211,7 @@ class ReservaViewSet(ModelViewSet):
         codigo = get_random_string(length=6)
         while Reserva.objects.filter(codigo_reserva=codigo).exists():
             codigo = get_random_string(length=6)
-        data['codigo_reserva'] = codigo
+        data['codigo_reserva'] = codigo.upper()
 
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
@@ -222,28 +222,29 @@ class ReservaViewSet(ModelViewSet):
         
         # Enviar correo al usuario
 
-        subject = f'Confirmación de Reserva N° {reserva.codigo_reserva}'
-        from_email = settings.DEFAULT_FROM_EMAIL,
-        to_email = [reserva.usuario_id.email]
-        context = {
-            'usuario': reserva.usuario_id.__str__,
-            'especialista': reserva.especialista_id.__str__,
-            'servicio': reserva.servicio_id.nombre,
-            'fecha': reserva.fecha,
-            'hora': reserva.hora,
-            'codigo_reserva': reserva.codigo_reserva,
-            'dia_semana': week_day,
-        }
-        html_content = render_to_string('emails/booking_template.html', context)
-
-        message = EmailMultiAlternatives(
-            subject=subject,
-            body='',
-            from_email=from_email,
-            to=to_email
-        )
-        message.attach_alternative(html_content, 'text/html')
         try:
+            subject = f'Confirmación de Reserva N° {reserva.codigo_reserva}'
+            from_email = settings.DEFAULT_FROM_EMAIL
+            to_email = [reserva.usuario_id.email]
+            context = {
+                'usuario': reserva.usuario_id.__str__,
+                'especialista': reserva.especialista_id.__str__,
+                'servicio': reserva.servicio_id.nombre,
+                'fecha': reserva.fecha,
+                'hora': reserva.hora,
+                'codigo_reserva': reserva.codigo_reserva,
+                'dia_semana': week_day,
+            }
+            html_content = render_to_string('emails/booking_template.html', context)
+
+            message = EmailMultiAlternatives(
+                subject=subject,
+                body='',
+                from_email=from_email,
+                to=to_email
+            )
+            message.attach_alternative(html_content, 'text/html')
+        
             message.send()
         except Exception as e:
             return Response({'error': f'Error al enviar el correo: {str(e)}'}, status=500)

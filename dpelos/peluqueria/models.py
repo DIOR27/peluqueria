@@ -22,7 +22,7 @@ class Especialista(models.Model):
     descripcion = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return self.nombre
+        return f'{self.nombre} {self.apellido} - {self.especialidad.capitalize()}'
 
 class Servicio(models.Model):
     nombre = models.CharField(max_length=100)
