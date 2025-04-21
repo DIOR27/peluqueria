@@ -44,7 +44,7 @@ class Reserva(models.Model):
     servicio_id = models.ForeignKey(Servicio, on_delete=models.CASCADE)
     fecha = models.DateField()
     hora = models.TimeField()
-    estado = models.CharField(max_length=20, choices=[('pendiente', 'Pendiente'), ('confirmada', 'Confirmada'), ('cancelada', 'Cancelada')], default='pendiente')
+    estado = models.CharField(max_length=20, choices=[('pendiente', 'Pendiente'), ('confirmada', 'Confirmada'), ('completada', 'Completada'), ('cancelada', 'Cancelada')], default='pendiente')
     codigo_reserva = models.CharField(max_length=6, unique=True)
 
     def __str__(self):
