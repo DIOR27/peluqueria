@@ -7,6 +7,8 @@ from django.contrib.auth.hashers import make_password
 from .models import Usuario, Especialista, Servicio, EspecialistaServicio, Reserva
 from .serializers import UsuarioSerializer, GroupSerializer, EspecialistaSerializer, ServicioSerializer, EspecialistaServicioSerializer, ReservaSerializer
 from django.contrib.auth.models import Group
+from django.utils.crypto import get_random_string
+from datetime import datetime, timedelta
 
 class GroupViewSet(ReadOnlyModelViewSet):  # solo permite listar y ver detalles
     queryset = Group.objects.all()
@@ -141,3 +143,86 @@ class ReservaViewSet(ModelViewSet):
     queryset = Reserva.objects.all()
     serializer_class = ReservaSerializer
     permission_classes = [DjangoModelPermissions]
+    
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        usuario_id = self.request.query_params.get('usuario_id')
+        especialista_id = self.request.query_params.get('especialista_id')
+        fecha = self.request.query_params.get('fecha')
+        hora = self.request.query_params.get('hora')
+
+        if usuario_id:
+            queryset = queryset.filter(usuario_id=usuario_id)
+        if especialista_id:
+            queryset = queryset.filter(especialista_id=especialista_id)
+        if fecha:
+            queryset = queryset.filter(fecha=fecha)
+        if hora:
+            queryset = queryset.filter(hora=hora)
+
+        return queryset
+
+    def create(self, request, *args, **kwargs):
+        data = request.data.copy()
+        especialista_id = data.get('especialista_id')
+        fecha = data.get('fecha')
+        hora_str = data.get('hora')
+        servicio_id = data.get('servicio_id')
+
+        if not (especialista_id and servicio_id and fecha and hora_str):
+            return Response({'error': 'Se requiere especialista_id, servicio_id, fecha y hora'}, status=400)
+
+        try:
+            servicio = Servicio.objects.get(id=servicio_id)
+        except Servicio.DoesNotExist:
+            return Response({'error': 'Servicio no válido'}, status=400)
+        
+        # Convertir hora a objeto datetime
+        
+        try:
+            hora_inicio_nueva = datetime.strptime(hora_str, "%H:%M:%S")
+        except ValueError:
+            return Response({'error': 'Formato de hora inválido. Usa HH:MM:SS'}, status=400)
+
+        # Obtener duración del servicio
+        duracion_servicio = servicio.duracion_estimada
+        hora_fin_nueva = hora_inicio_nueva + timedelta(minutes=duracion_servicio)
+
+        reservas_existentes = Reserva.objects.filter(
+            especialista_id=especialista_id,
+            fecha=fecha
+        )
+
+        # Validar que no se superpongan reservas del mismo especialista
+        for reserva in reservas_existentes:
+            hora_inicio_existente = datetime.strptime(str(reserva.hora), "%H:%M:%S")
+            duracion_existente = reserva.servicio_id.duracion_estimada
+            hora_fin_existente = hora_inicio_existente + timedelta(minutes=duracion_existente)
+
+            if hora_inicio_nueva <= hora_fin_existente and hora_fin_nueva >= hora_inicio_existente:
+                return Response({'error': 'El especialista ya tiene una reserva en ese intervalo de tiempo'}, status=400)
+
+        # Generar código de reserva único
+        codigo = get_random_string(length=6)
+        while Reserva.objects.filter(codigo_reserva=codigo).exists():
+            codigo = get_random_string(length=6)
+        data['codigo_reserva'] = codigo
+
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        reserva = serializer.save()
+
+        return Response({
+            'message': 'Reserva creada exitosamente',
+            'reserva': {
+                'id': reserva.id,
+                'usuario': reserva.usuario_id.id,
+                'especialista': reserva.especialista_id.id,
+                'servicio': reserva.servicio_id.id,
+                'fecha': reserva.fecha,
+                'hora': reserva.hora,
+                'estado': reserva.estado,
+                'codigo_reserva': reserva.codigo_reserva
+            }
+        }, status=status.HTTP_201_CREATED)
+
