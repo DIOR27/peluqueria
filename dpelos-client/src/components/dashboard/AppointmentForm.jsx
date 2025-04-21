@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Button } from "../ui/Button";
 import { Sheet } from "../ui/Sheet";
-import { Calendar, Clock } from "lucide-react";
 
 export function AppointmentForm({ isOpen, onClose, appointment = null }) {
   const [formData, setFormData] = useState({
@@ -98,8 +97,7 @@ export function AppointmentForm({ isOpen, onClose, appointment = null }) {
                 onChange={handleChange}
                 className="w-full rounded-md border border-gray-300 px-3 py-2"
                 required
-            />
-            <Calendar className="w-4 h-4 absolute right-4 top-1/2 -translate-y-1/2 text-gray-500" />
+              />
             </div>
           </div>
 
@@ -116,7 +114,6 @@ export function AppointmentForm({ isOpen, onClose, appointment = null }) {
                 className="w-full rounded-md border border-gray-300 px-3 py-2"
                 required
               />
-              <Clock className="w-4 h-4 absolute right-5 top-1/2 -translate-y-1/2 text-gray-500" />
             </div>
           </div>
         </div>

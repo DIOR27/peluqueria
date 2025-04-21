@@ -51,6 +51,66 @@ const mockAppointments = [
     time: "11:00",
     status: "pending",
     price: 15
+  },
+  {
+    id: 6,
+    clientName: "Ana López",
+    service: "Coloración",
+    specialist: "Roberto Sánchez",
+    date: "2024-03-21",
+    time: "09:00",
+    status: "confirmed",
+    price: 25
+  },
+  {
+    id: 7,
+    clientName: "Ana López",
+    service: "Coloración",
+    specialist: "Roberto Sánchez",
+    date: "2024-03-21",
+    time: "09:00",
+    status: "confirmed",
+    price: 25
+  },
+  {
+    id: 8,
+    clientName: "Ana López",
+    service: "Coloración",
+    specialist: "Roberto Sánchez",
+    date: "2024-03-21",
+    time: "09:00",
+    status: "confirmed",
+    price: 25
+  },
+  {
+    id: 9,
+    clientName: "Ana López",
+    service: "Coloración",
+    specialist: "Roberto Sánchez",
+    date: "2024-03-21",
+    time: "09:00",
+    status: "confirmed",
+    price: 25
+  },
+  {
+    id: 10,
+    clientName: "Ana López",
+    service: "Coloración",
+    specialist: "Roberto Sánchez",
+    date: "2024-03-21",
+    time: "09:00",
+    status: "confirmed",
+    price: 25
+  },
+  {
+    id: 11,
+    clientName: "Ana López",
+    service: "Coloración",
+    specialist: "Roberto Sánchez",
+    date: "2024-03-21",
+    time: "09:00",
+    status: "confirmed",
+    price: 25
   }
 ];
 
