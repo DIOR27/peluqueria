@@ -9,6 +9,11 @@ from .serializers import UsuarioSerializer, GroupSerializer, EspecialistaSeriali
 from django.contrib.auth.models import Group
 from django.utils.crypto import get_random_string
 from datetime import datetime, timedelta
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.conf import settings
+
+import locale
 
 class GroupViewSet(ReadOnlyModelViewSet):  # solo permite listar y ver detalles
     queryset = Group.objects.all()
@@ -212,6 +217,37 @@ class ReservaViewSet(ModelViewSet):
         serializer.is_valid(raise_exception=True)
         reserva = serializer.save()
 
+        locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
+        week_day = reserva.fecha.strftime('%A').lower()
+        
+        # Enviar correo al usuario
+
+        subject = f'Confirmación de Reserva N° {reserva.codigo_reserva}'
+        from_email = settings.DEFAULT_FROM_EMAIL,
+        to_email = [reserva.usuario_id.email]
+        context = {
+            'usuario': reserva.usuario_id.__str__,
+            'especialista': reserva.especialista_id.__str__,
+            'servicio': reserva.servicio_id.nombre,
+            'fecha': reserva.fecha,
+            'hora': reserva.hora,
+            'codigo_reserva': reserva.codigo_reserva,
+            'dia_semana': week_day,
+        }
+        html_content = render_to_string('emails/booking_template.html', context)
+
+        message = EmailMultiAlternatives(
+            subject=subject,
+            body='',
+            from_email=from_email,
+            to=to_email
+        )
+        message.attach_alternative(html_content, 'text/html')
+        try:
+            message.send()
+        except Exception as e:
+            return Response({'error': f'Error al enviar el correo: {str(e)}'}, status=500)
+
         return Response({
             'message': 'Reserva creada exitosamente',
             'reserva': {
@@ -225,4 +261,3 @@ class ReservaViewSet(ModelViewSet):
                 'codigo_reserva': reserva.codigo_reserva
             }
         }, status=status.HTTP_201_CREATED)
-

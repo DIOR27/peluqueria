@@ -31,6 +31,9 @@ class Servicio(models.Model):
     duracion_estimada = models.IntegerField(help_text="Duración en minutos")
     imagen_url = models.URLField(blank=True, null=True)
 
+    def __str__(self):
+        return self.nombre
+
 class EspecialistaServicio(models.Model):
     especialista_id = models.ForeignKey(Especialista, on_delete=models.CASCADE)
     servicio_id = models.ForeignKey(Servicio, on_delete=models.CASCADE)

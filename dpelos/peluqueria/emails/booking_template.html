@@ -1,0 +1,35 @@
+<!-- core/templates/emails/saludo.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Confirmación de Reserva N° {{ codigo_reserva }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            padding: 20px;
+        }
+        .contenedor {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        p {
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="contenedor">
+        <h1>Estimado, {{ usuario }}:</h1>
+        <p>Su reserva N° <b>{{ codigo_reserva }}</b> ha sido generada con éxito.</p>
+        <p>Lo esperamos el día <b>{{ dia_semana }} {{ fecha }}</b> a las <b>{{ hora }}</b> horas.</p>
+        <p>Saludos,<br>Peluquería D'Pelos</p>
+    </div>
+</body>
+</html>
