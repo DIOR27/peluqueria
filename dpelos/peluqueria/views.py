@@ -4,8 +4,8 @@ from rest_framework.permissions import DjangoModelPermissions
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth.hashers import make_password
-from .models import Usuario, Especialista, Servicio, EspecialistaServicio, Reserva
-from .serializers import UsuarioSerializer, GroupSerializer, EspecialistaSerializer, ServicioSerializer, EspecialistaServicioSerializer, ReservaSerializer
+from .models import Usuario, Especialista, Servicio, EspecialistaServicio, Reserva, Notificacion, InformacionNegocio, HorarioTrabajo
+from .serializers import UsuarioSerializer, GroupSerializer, EspecialistaSerializer, ServicioSerializer, EspecialistaServicioSerializer, ReservaSerializer, NotificacionSerializer, InformacionNegocioSerializer, HorarioTrabajoSerializer
 from django.contrib.auth.models import Group
 from django.utils.crypto import get_random_string
 from datetime import datetime, timedelta
@@ -272,3 +272,19 @@ def obtener_reserva_por_codigo(request, codigo_reserva):
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Reserva.DoesNotExist:
         return Response({'error': 'Reserva no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+
+
+class NotificacionViewSet(ModelViewSet):
+    queryset = Notificacion.objects.all()
+    serializer_class = NotificacionSerializer
+    permission_classes = [DjangoModelPermissions]
+
+class InformacionNegocioViewSet(ModelViewSet):
+    queryset = InformacionNegocio.objects.all()
+    serializer_class = InformacionNegocioSerializer
+    permission_classes = [DjangoModelPermissions]
+
+class HorarioTrabajoViewSet(ModelViewSet):
+    queryset = HorarioTrabajo.objects.all()
+    serializer_class = HorarioTrabajoSerializer
+    permission_classes = [DjangoModelPermissions]
