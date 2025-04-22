@@ -30,7 +30,7 @@ export function Toggle({
         disabled={disabled}
         onClick={handleChange}
         className={cn(
-          "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-gold-500 focus:ring-offset-2",
+          "relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-black focus:ring-offset-2",
           isChecked ? "bg-green-500" : "bg-gray-200",
           disabled && "opacity-50 cursor-not-allowed",
           className
