@@ -86,16 +86,6 @@ export default function Settings() {
     console.log("Guardando configuración:", settings);
   };
 
-  const SettingSection = ({ title, icon, children }) => (
-    <div className="bg-white rounded-lg shadow p-6 mb-6">
-      <div className="flex items-center gap-3 mb-4">
-        {icon}
-        <h2 className="text-lg font-semibold text-gray-900">{title}</h2>
-      </div>
-      {children}
-    </div>
-  );
-
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
@@ -107,10 +97,12 @@ export default function Settings() {
       </div>
 
       <div className="space-y-6">
-        <SettingSection
-          title="Notificaciones" 
-          icon={<Bell className="w-5 h-5 text-gold-500" />}
-        >
+
+        <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <div className="flex items-center gap-3 mb-4">
+            <Bell className="w-5 h-5 text-gold-500"/>
+            <h2 className="text-lg font-semibold text-gray-900">Notificaciones</h2>
+          </div>
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
@@ -133,12 +125,13 @@ export default function Settings() {
               />
             </div>
           </div>
-        </SettingSection>
+        </div>
 
-        <SettingSection
-          title="Información del Negocio"
-          icon={<Users className="w-5 h-5 text-gold-500" />}
-        >
+        <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <div className="flex items-center gap-3 mb-4">
+            <Users className="w-5 h-5 text-gold-500" />
+            <h2 className="text-lg font-semibold text-gray-900">Información del Negocio</h2>
+          </div>
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -148,7 +141,7 @@ export default function Settings() {
                 type="text"
                 value={settings.business.name}
                 onChange={(e) => handleSettingChange("business", "name", e.target.value)}
-                className="w-full rounded-md border border-gray-300 px-3 py-2"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
               />
             </div>
             <div>
@@ -159,7 +152,7 @@ export default function Settings() {
                 type="text"
                 value={settings.business.address}
                 onChange={(e) => handleSettingChange("business", "address", e.target.value)}
-                className="w-full rounded-md border border-gray-300 px-3 py-2"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -171,7 +164,7 @@ export default function Settings() {
                   type="tel"
                   value={settings.business.phone}
                   onChange={(e) => handleSettingChange("business", "phone", e.target.value)}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2"
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
                 />
               </div>
               <div>
@@ -182,17 +175,18 @@ export default function Settings() {
                   type="email"
                   value={settings.business.email}
                   onChange={(e) => handleSettingChange("business", "email", e.target.value)}
-                  className="w-full rounded-md border border-gray-300 px-3 py-2"
+                  className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
                 />
               </div>
             </div>
           </div>
-        </SettingSection>
+        </div>
 
-        <SettingSection
-          title="Horario de Trabajo"
-          icon={<Calendar className="w-5 h-5 text-gold-500" />}
-        >
+        <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <div className="flex items-center gap-3 mb-4">
+            <Calendar className="w-5 h-5 text-gold-500" />
+            <h2 className="text-lg font-semibold text-gray-900">Horario de Trabajo</h2>
+          </div>
           <div className="space-y-4">
             {Object.entries(settings.business.workingHours).map(([day, hours]) => (
               <div key={day} className="flex items-center gap-4">
@@ -212,7 +206,7 @@ export default function Settings() {
                     type="time"
                     value={hours.open}
                     onChange={(e) => handleWorkingHoursChange(day, "open", e.target.value)}
-                    className="rounded-md border border-gray-300 px-3 py-2"
+                    className="rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
                     disabled={!hours.isActive}
                   />
                   <span className="text-gray-500">a</span>
@@ -220,19 +214,20 @@ export default function Settings() {
                     type="time"
                     value={hours.close}
                     onChange={(e) => handleWorkingHoursChange(day, "close", e.target.value)}
-                    className="rounded-md border border-gray-300 px-3 py-2"
+                    className="rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
                     disabled={!hours.isActive}
                   />
                 </div>
               </div>
             ))}
           </div>
-        </SettingSection>
+        </div>
 
-        <SettingSection
-          title="Configuración de Citas"
-          icon={<Calendar className="w-5 h-5 text-gold-500" />}
-        >
+        <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <div className="flex items-center gap-3 mb-4">
+            <Calendar className="w-5 h-5 text-gold-500" />
+            <h2 className="text-lg font-semibold text-gray-900">Configuración de Citas</h2>
+          </div>
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -242,7 +237,7 @@ export default function Settings() {
                 type="number"
                 value={settings.appointments.interval}
                 onChange={(e) => handleSettingChange("appointments", "interval", parseInt(e.target.value))}
-                className="w-full rounded-md border border-gray-300 px-3 py-2"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
                 min="15"
                 step="15"
               />
@@ -255,7 +250,7 @@ export default function Settings() {
                 type="number"
                 value={settings.appointments.maxPerDay}
                 onChange={(e) => handleSettingChange("appointments", "maxPerDay", parseInt(e.target.value))}
-                className="w-full rounded-md border border-gray-300 px-3 py-2"
+                className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
                 min="1"
               />
             </div>
@@ -280,7 +275,7 @@ export default function Settings() {
               />
             </div>
           </div>
-        </SettingSection>
+        </div>
       </div>
     </div>
   );
