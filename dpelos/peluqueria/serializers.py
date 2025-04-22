@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Usuario, Especialista, Servicio, EspecialistaServicio, Reserva
+from .models import Usuario, Especialista, Servicio, EspecialistaServicio, Reserva, Notificacion, InformacionNegocio, HorarioTrabajo
 from django.contrib.auth.models import Group
 
 
@@ -33,3 +33,20 @@ class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
         fields = ['id', 'name']
+
+class NotificacionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notificacion
+        fields = '__all__'
+
+class InformacionNegocioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = InformacionNegocio
+        fields = '__all__'
+
+class HorarioTrabajoSerializer(serializers.ModelSerializer):
+    dia_display = serializers.CharField(source='get_dia_display', read_only=True)
+
+    class Meta:
+        model = HorarioTrabajo
+        fields = '__all__'
