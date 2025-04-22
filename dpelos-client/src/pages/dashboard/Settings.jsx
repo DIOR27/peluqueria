@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "../../components/ui/Button";
 import { Toggle } from "../../components/ui/Toggle";
 import { Bell, Calendar, Users, Save } from "lucide-react";
+import { Checkbox, Field, Label } from '@headlessui/react';
 
 export default function Settings() {
 
@@ -190,23 +191,24 @@ export default function Settings() {
           <div className="space-y-4">
             {Object.entries(settings.business.workingHours).map(([day, hours]) => (
               <div key={day} className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
+                <Field className="flex items-center gap-2">
+                  <Checkbox
                     checked={hours.isActive}
                     onChange={() => handleDayToggle(day)}
-                    className="h-4 w-4 rounded border-gray-300 text-gold-600 focus:ring-gold-500"
-                  />
-                  <span className="text-sm font-medium text-gray-700 w-24">
-                    {day.charAt(0).toUpperCase() + day.slice(1)}
-                  </span>
-                </div>
+                    className="group block size-4 rounded border bg-white data-[checked]:bg-black"
+                    >
+                    <svg className="stroke-white opacity-0 group-data-[checked]:opacity-100" viewBox="0 0 14 14" fill="none">
+                      <path d="M3 8L6 11L11 3.5" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </Checkbox>
+                  <Label className="text-sm text-gray-700 capitalize w-24">{day}</Label>
+                </Field>
                 <div className="flex items-center gap-2">
                   <input
                     type="time"
                     value={hours.open}
                     onChange={(e) => handleWorkingHoursChange(day, "open", e.target.value)}
-                    className="rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
+                    className="rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black disabled:opacity-50 w-34"
                     disabled={!hours.isActive}
                   />
                   <span className="text-gray-500">a</span>
@@ -214,7 +216,7 @@ export default function Settings() {
                     type="time"
                     value={hours.close}
                     onChange={(e) => handleWorkingHoursChange(day, "close", e.target.value)}
-                    className="rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
+                    className="rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black disabled:opacity-50 w-34"
                     disabled={!hours.isActive}
                   />
                 </div>

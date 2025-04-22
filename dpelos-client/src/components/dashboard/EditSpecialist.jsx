@@ -1,5 +1,6 @@
 import { Button } from "../ui/Button";
 import { Toggle } from "../ui/Toggle";
+import { Checkbox, Field, Label } from '@headlessui/react';
 
 export default function EditSpecialist({ selectedSpecialist, setIsSheetOpen, setSelectedSpecialist, handleServiceToggle, services }) {
 
@@ -94,15 +95,18 @@ export default function EditSpecialist({ selectedSpecialist, setIsSheetOpen, set
           </label>
           <div className="grid grid-cols-2 gap-2">
             {services.map(service => (
-              <label key={service.id} className="flex items-center space-x-2">
-                <input
-                  type="checkbox"
+              <Field key={service.id} className="flex items-center gap-2">
+                <Checkbox
                   checked={selectedSpecialist.services?.includes(service.id)}
                   onChange={() => handleServiceToggle(service.id)}
-                  className="rounded border-gray-300 text-gold-600 focus:ring-gold-500"
-                />
-                <span className="text-sm text-gray-700">{service.name}</span>
-              </label>
+                  className="group block size-4 rounded border bg-white data-[checked]:bg-black"
+                  >
+                  <svg className="stroke-white opacity-0 group-data-[checked]:opacity-100" viewBox="0 0 14 14" fill="none">
+                    <path d="M3 8L6 11L11 3.5" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                </Checkbox>
+                <Label className="text-sm text-gray-700">{service.name}</Label>
+              </Field>
             ))}
           </div>
         </div>
