@@ -1,14 +1,6 @@
 import { MoreVertical, Scissors } from "lucide-react";
 
-export default function SpecialistCard({ specialist, handleSpecialistClick }) {
-  const services = [
-    { id: 1, name: "Corte de Cabello" },
-    { id: 2, name: "Afeitado Tradicional" },
-    { id: 3, name: "Perfilado de Barba" },
-    { id: 4, name: "Coloración" },
-    { id: 5, name: "Tratamiento Capilar" }
-  ];
-
+export default function SpecialistCard({ specialist, handleSpecialistClick, services }) {
   return (
     <div
       key={specialist.id}

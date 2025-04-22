@@ -6,7 +6,7 @@ import useSpecialistStore from "../../stores/specialistStore";
 import SpecialistCard from "../../components/dashboard/SpecialistCard";
 import EditSpecialist from "../../components/dashboard/EditSpecialist";
 import SpecialistDetails from "../../components/dashboard/SpecialistDetails";
-
+import useServiceStore from "../../stores/serviceStore";
 export default function Specialists() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -15,15 +15,7 @@ export default function Specialists() {
   const [isNewSpecialist, setIsNewSpecialist] = useState(false);
 
   const { specialists } = useSpecialistStore();
-
-  const services = [
-    { id: 1, name: "Corte de Cabello" },
-    { id: 2, name: "Afeitado Tradicional" },
-    { id: 3, name: "Perfilado de Barba" },
-    { id: 4, name: "Coloración" },
-    { id: 5, name: "Tratamiento Capilar" }
-  ];
-
+  const { services } = useServiceStore();
   const filteredSpecialists = specialists.filter(specialist =>
     specialist.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     specialist.position.toLowerCase().includes(searchQuery.toLowerCase())
@@ -102,6 +94,7 @@ export default function Specialists() {
             key={specialist.id}
             specialist={specialist}
             handleSpecialistClick={() => handleSpecialistClick(specialist)}
+            services={services}
           />
         ))}
       </div>
