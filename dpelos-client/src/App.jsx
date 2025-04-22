@@ -28,7 +28,7 @@ const router = createBrowserRouter([
     ]
   },
   {
-    path: '/schedule', // Nueva ruta para el formulario
+    path: '/agendar', 
     element: <Schedule />
   }
 ]);
