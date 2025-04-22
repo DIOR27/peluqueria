@@ -16,14 +16,14 @@ const router = createBrowserRouter([
     element: <Home />
   },
   {
-    path: '/dashboard',
+    path: '/panel',
     Component: Page,
     children: [
       { index: true, Component: Appointments },
-      { path: 'settings', Component: Settings },
-      { path: 'clients', Component: Clients },
-      { path: 'services', Component: Services },
-      { path: 'specialists', Component: Specialists },
+      { path: 'configuraciones', Component: Settings },
+      { path: 'clientes', Component: Clients },
+      { path: 'servicios', Component: Services },
+      { path: 'especialistas', Component: Specialists },
     ]
   }
 ]);

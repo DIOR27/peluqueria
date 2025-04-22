@@ -4,11 +4,11 @@ import { Settings, Calendar, Users, Scissors, MoreVertical, LogOut } from "lucid
 import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 
 const navigation = [
-  { name: "Citas", href: "/dashboard", icon: Calendar },
-  { name: "Clientes", href: "/dashboard/clients", icon: Users },
-  { name: "Especialistas", href: "/dashboard/specialists", icon: Users },
-  { name: "Servicios", href: "/dashboard/services", icon: Scissors },
-  { name: "Configuración", href: "/dashboard/settings", icon: Settings },
+  { name: "Citas", href: "/panel", icon: Calendar },
+  { name: "Clientes", href: "/panel/clientes", icon: Users },
+  { name: "Especialistas", href: "/panel/especialistas", icon: Users },
+  { name: "Servicios", href: "/panel/servicios", icon: Scissors },
+  { name: "Configuración", href: "/panel/configuraciones", icon: Settings },
 ];
 
 export default function Sidebar() {
@@ -78,7 +78,7 @@ export default function Sidebar() {
                 </button>
               </MenuItem>
               <MenuItem className="w-[180px] px-4 py-2 cursor-pointer">
-                <Link className=" data-[focus]:bg-gray-100 flex items-center gap-2" to="/dashboard/settings">
+                <Link className=" data-[focus]:bg-gray-100 flex items-center gap-2" to="/panel/configuraciones">
                   <Settings className="h-4 w-4" />
                   Configuración
                 </Link>
