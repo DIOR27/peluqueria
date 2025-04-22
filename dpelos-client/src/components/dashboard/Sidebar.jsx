@@ -1,7 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "../../lib/utils";
 import { Settings, Calendar, Users, Scissors, MoreVertical, LogOut } from "lucide-react";
-import { useState } from "react";
+import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
 
 const navigation = [
   { name: "Citas", href: "/dashboard", icon: Calendar },
@@ -13,9 +13,7 @@ const navigation = [
 
 export default function Sidebar() {
   const location = useLocation();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // Mock data - Esto debería venir de tu estado global o contexto de autenticación
   const user = {
     name: "Juan Pérez",
     email: "juan@dpelos.com"
@@ -57,20 +55,6 @@ export default function Sidebar() {
       </nav>
 
       <div className="relative border-b border-gray-200 p-4">
-      {isMenuOpen && (
-          <div className="absolute left-4 top-[-50px] right-4 mt-2 bg-white rounded-md shadow-lg py-1">
-            <button
-              onClick={() => {
-                // Aquí irá la lógica para cerrar sesión
-                console.log("Cerrar sesión");
-              }}
-              className="flex items-center gap-2 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-            >
-              <LogOut className="h-4 w-4" />
-              Cerrar sesión
-            </button>
-          </div>
-        )}
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gold-500 text-white font-medium">
             {getInitials(user.name)}
@@ -79,12 +63,28 @@ export default function Sidebar() {
             <p className="text-sm font-medium text-gray-900 truncate">{user.name}</p>
             <p className="text-xs text-gray-500 truncate">{user.email}</p>
           </div>
-          <button
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="p-1 hover:bg-gray-100 rounded-full"
-          >
-            <MoreVertical className="h-4 w-4 text-gray-500" />
-          </button>
+          <Menu>
+            <MenuButton className="p-1 hover:bg-gray-100 rounded-full focus:outline-none">
+              <MoreVertical className="h-5 w-5 text-gray-500" />
+            </MenuButton>
+            <MenuItems
+              anchor="top start"
+              className="bg-white shadow-lg rounded-md flex flex-col gap-2 border border-gray-200 text-sm text-gray-700 focus:outline-none"
+            >
+              <MenuItem className="w-[180px] px-4 py-2 cursor-pointer">
+                <button className=" data-[focus]:bg-gray-100 flex items-center gap-2">
+                  <LogOut className="h-4 w-4 text-red-500" />
+                  Cerrar sesión
+                </button>
+              </MenuItem>
+              <MenuItem className="w-[180px] px-4 py-2 cursor-pointer">
+                <Link className=" data-[focus]:bg-gray-100 flex items-center gap-2" href="/dashboard/settings">
+                  <Settings className="h-4 w-4" />
+                  Configuración
+                </Link>
+              </MenuItem>
+            </MenuItems>
+          </Menu>
         </div>
       </div>
     </div>
