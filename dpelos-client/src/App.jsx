@@ -8,6 +8,7 @@ import Page from "./pages/dashboard/Page";
 import Clients from "./pages/dashboard/Clients";
 import Services from "./pages/dashboard/Services";
 import Specialists from "./pages/dashboard/Specialists";
+import Schedule from "./pages/schedule";
 import './App.css';
 
 const router = createBrowserRouter([
@@ -25,6 +26,10 @@ const router = createBrowserRouter([
       { path: 'servicios', Component: Services },
       { path: 'especialistas', Component: Specialists },
     ]
+  },
+  {
+    path: '/schedule', // Nueva ruta para el formulario
+    element: <Schedule />
   }
 ]);
 
