@@ -4,6 +4,7 @@ from django.contrib.auth.models import Group
 
 
 class UsuarioSerializer(serializers.ModelSerializer):
+    rol = serializers.CharField(write_only=True, required=False)
     class Meta:
         model = Usuario
         fields = '__all__'
