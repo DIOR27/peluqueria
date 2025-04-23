@@ -18,7 +18,10 @@ def crear_grupos_y_permisos(sender, **kwargs):
         'Especialista',
         'Servicio',
         'EspecialistaServicio',
-        'Reserva'
+        'Reserva',
+        'Notificacion',
+        'InformacionNegocio',
+        'HorarioTrabajo'
     ]
 
     permisos_para_admin = []
