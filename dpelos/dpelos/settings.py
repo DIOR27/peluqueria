@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'peluqueria.apps.PeluqueriaConfig',
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -152,8 +153,16 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.DjangoModelPermissions',
     ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'D\'Pelos Peluqueria API',
+    'DESCRIPTION': 'API para la peluqueria D\'Pelos',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
 }
