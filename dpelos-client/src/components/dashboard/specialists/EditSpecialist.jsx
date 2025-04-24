@@ -1,15 +1,15 @@
-import { Button } from "../ui/Button";
-import { Toggle } from "../ui/Toggle";
+import { Button } from "../../ui/Button";
+import { Toggle } from "../../ui/Toggle";
 import { Checkbox, Field, Label } from '@headlessui/react';
 
-export default function EditSpecialist({ selectedSpecialist, setIsSheetOpen, setSelectedSpecialist, handleServiceToggle, services }) {
+export default function EditSpecialist({ selectedSpecialist, handleClose, setSelectedSpecialist, handleServiceToggle, services }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-      // Aquí irá la lógica para crear un nuevo especialista
-      console.log("Actualizar especialista:", selectedSpecialist);
+    // Aquí irá la lógica para crear un nuevo especialista
+    console.log("Actualizar especialista:", selectedSpecialist);
 
-    setIsSheetOpen(false);
+    handleClose();
   };
 
   return (
@@ -22,7 +22,7 @@ export default function EditSpecialist({ selectedSpecialist, setIsSheetOpen, set
           <input
             type="text"
             value={selectedSpecialist.name}
-            onChange={(e) => setSelectedSpecialist({...selectedSpecialist, name: e.target.value})}
+            onChange={(e) => setSelectedSpecialist({ ...selectedSpecialist, name: e.target.value })}
             className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
             required
           />
@@ -34,7 +34,7 @@ export default function EditSpecialist({ selectedSpecialist, setIsSheetOpen, set
           <input
             type="text"
             value={selectedSpecialist.position}
-            onChange={(e) => setSelectedSpecialist({...selectedSpecialist, position: e.target.value})}
+            onChange={(e) => setSelectedSpecialist({ ...selectedSpecialist, position: e.target.value })}
             className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
             required
           />
@@ -45,7 +45,7 @@ export default function EditSpecialist({ selectedSpecialist, setIsSheetOpen, set
           </label>
           <textarea
             value={selectedSpecialist.bio}
-            onChange={(e) => setSelectedSpecialist({...selectedSpecialist, bio: e.target.value})}
+            onChange={(e) => setSelectedSpecialist({ ...selectedSpecialist, bio: e.target.value })}
             className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
             rows="3"
             required
@@ -59,7 +59,7 @@ export default function EditSpecialist({ selectedSpecialist, setIsSheetOpen, set
             <input
               type="email"
               value={selectedSpecialist.email}
-              onChange={(e) => setSelectedSpecialist({...selectedSpecialist, email: e.target.value})}
+              onChange={(e) => setSelectedSpecialist({ ...selectedSpecialist, email: e.target.value })}
               className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
               required
             />
@@ -71,24 +71,12 @@ export default function EditSpecialist({ selectedSpecialist, setIsSheetOpen, set
             <input
               type="tel"
               value={selectedSpecialist.phone}
-              onChange={(e) => setSelectedSpecialist({...selectedSpecialist, phone: e.target.value})}
+              onChange={(e) => setSelectedSpecialist({ ...selectedSpecialist, phone: e.target.value })}
               className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
               required
             />
           </div>
         </div>
-        {/* <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Horario
-          </label>
-          <input
-            type="text"
-            value={selectedSpecialist.schedule}
-            onChange={(e) => setSelectedSpecialist({...selectedSpecialist, schedule: e.target.value})}
-            className="w-full rounded-md border border-gray-300 px-3 py-2"
-            required
-          />
-        </div> */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
             Servicios
@@ -100,7 +88,7 @@ export default function EditSpecialist({ selectedSpecialist, setIsSheetOpen, set
                   checked={selectedSpecialist.services?.includes(service.id)}
                   onChange={() => handleServiceToggle(service.id)}
                   className="group block size-4 rounded border bg-white data-[checked]:bg-black"
-                  >
+                >
                   <svg className="stroke-white opacity-0 group-data-[checked]:opacity-100" viewBox="0 0 14 14" fill="none">
                     <path d="M3 8L6 11L11 3.5" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
                   </svg>
@@ -112,14 +100,14 @@ export default function EditSpecialist({ selectedSpecialist, setIsSheetOpen, set
         </div>
         <Toggle
           checked={selectedSpecialist.isActive}
-          onChange={(value) => setSelectedSpecialist({...selectedSpecialist, isActive: value})}
+          onChange={(value) => setSelectedSpecialist({ ...selectedSpecialist, isActive: value })}
           label="Estado"
         />
         <div className="flex justify-end gap-2 pt-4">
           <Button
             type="button"
             variant="outline"
-            onClick={() => setIsSheetOpen(false)}
+            onClick={handleClose}
           >
             Cancelar
           </Button>

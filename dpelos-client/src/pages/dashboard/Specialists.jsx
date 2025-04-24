@@ -3,10 +3,12 @@ import { Button } from "../../components/ui/Button";
 import { Sheet } from "../../components/ui/Sheet";
 import { Search } from "lucide-react";
 import useSpecialistStore from "../../stores/specialistStore";
-import SpecialistCard from "../../components/dashboard/SpecialistCard";
-import EditSpecialist from "../../components/dashboard/EditSpecialist";
-import SpecialistDetails from "../../components/dashboard/SpecialistDetails";
+import SpecialistCard from "../../components/dashboard/specialists/SpecialistCard";
+import EditSpecialist from "../../components/dashboard/specialists/EditSpecialist";
+import SpecialistDetails from "../../components/dashboard/specialists/SpecialistDetails";
 import useServiceStore from "../../stores/serviceStore";
+import NewSpecialist from "../../components/dashboard/specialists/NewSpecialist";
+
 export default function Specialists() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -21,26 +23,14 @@ export default function Specialists() {
     specialist.position.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleSpecialistClick = (specialist) => {
+  const handleSpecialistClick = (specialist, isEdit) => {
+    setIsEditing(isEdit);
     setSelectedSpecialist(specialist);
-    setIsEditing(false);
-    setIsNewSpecialist(false);
     setIsSheetOpen(true);
   };
 
   const handleNewSpecialist = () => {
-    setSelectedSpecialist({
-      id: specialists.length + 1,
-      name: "",
-      position: "",
-      email: "",
-      phone: "",
-      schedule: "",
-      bio: "",
-      isActive: true,
-      services: [] // Array vacío para nuevos especialistas
-    });
-    setIsEditing(true);
+    setSelectedSpecialist(null);
     setIsNewSpecialist(true);
     setIsSheetOpen(true);
   };
@@ -50,10 +40,17 @@ export default function Specialists() {
     setIsNewSpecialist(false);
   };
 
+  const handleCloseSheet = () => {
+    setIsSheetOpen(false);
+    setSelectedSpecialist(null);
+    setIsEditing(false);
+    setIsNewSpecialist(false);
+  };
+
   const handleDelete = () => {
     // Aquí irá la lógica para eliminar el especialista
     console.log("Eliminar especialista:", selectedSpecialist.id);
-    setIsSheetOpen(false);
+    handleCloseSheet();
   };
 
   const handleServiceToggle = (serviceId) => {
@@ -67,6 +64,14 @@ export default function Specialists() {
       services: newServices
     });
   };
+
+  const handleToggleStatus = (specialist) => {
+    console.log("Toggle status for specialist:", specialist.id);
+  };
+
+  const editing = selectedSpecialist && isEditing;
+  const viewing = selectedSpecialist && !isEditing;
+  const newSpecialist = isNewSpecialist && !isEditing && !selectedSpecialist;
 
   return (
     <div className="p-6">
@@ -93,37 +98,45 @@ export default function Specialists() {
           <SpecialistCard
             key={specialist.id}
             specialist={specialist}
-            handleSpecialistClick={() => handleSpecialistClick(specialist)}
             services={services}
+            handleSpecialistClick={handleSpecialistClick}
+            handleToggleStatus={handleToggleStatus}
           />
         ))}
       </div>
 
       <Sheet
         isOpen={isSheetOpen}
-        onClose={() => setIsSheetOpen(false)}
-        title={isNewSpecialist ? "Nuevo Especialista" : (isEditing ? "Editar Especialista" : selectedSpecialist?.name)}
+        onClose={handleCloseSheet}
+        title={newSpecialist ? "Nuevo Especialista" : selectedSpecialist?.name || "Detalles del Especialista"}
       >
-        {selectedSpecialist && (
-          <div className="space-y-6">
-            {isEditing ? (
-              <EditSpecialist
-                selectedSpecialist={selectedSpecialist}
-                setSelectedSpecialist={setSelectedSpecialist}
-                setIsSheetOpen={setIsSheetOpen}
-                handleServiceToggle={handleServiceToggle}
-                services={services}
-              />
-            ) : (
-              <SpecialistDetails
-                selectedSpecialist={selectedSpecialist}
-                services={services}
-                handleDelete={handleDelete}
-                handleEdit={handleEdit}
-              />
-            )}
-          </div>
-        )}
+
+        {editing ? (
+          <EditSpecialist
+            selectedSpecialist={selectedSpecialist}
+            setSelectedSpecialist={setSelectedSpecialist}
+            setIsSheetOpen={setIsSheetOpen}
+            handleServiceToggle={handleServiceToggle}
+            services={services}
+            handleClose={handleCloseSheet}
+          />
+        ) : null}
+
+        {viewing ? (
+          <SpecialistDetails
+            selectedSpecialist={selectedSpecialist}
+            services={services}
+            handleDelete={handleDelete}
+            handleEdit={handleEdit}
+          />
+        ) : null}
+
+        {newSpecialist ? (
+          <NewSpecialist
+            services={services}
+            handleClose={handleCloseSheet}
+          />
+        ) : null}
       </Sheet>
     </div>
   );
