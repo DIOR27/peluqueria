@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Button } from "../../components/ui/Button";
 import { Sheet } from "../../components/ui/Sheet";
-import { Search} from "lucide-react";
+import { Search } from "lucide-react";
 import useServiceStore from "../../stores/serviceStore";
 import useSpecialistStore from "../../stores/specialistStore";
-import ServiceCard from "../../components/dashboard/ServiceCard";
-import EditService from "../../components/dashboard/EditService";
-import ServiceDetails from "../../components/dashboard/ServiceDetails";
+import ServiceCard from "../../components/dashboard/services/ServiceCard";
+import EditService from "../../components/dashboard/services/EditService";
+import ServiceDetails from "../../components/dashboard/services/ServiceDetails";
+import NewService from "../../components/dashboard/services/NewService";
 
 export default function Services() {
   const services = useServiceStore(state => state.services);
@@ -22,38 +23,37 @@ export default function Services() {
     service.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleServiceClick = (service) => {
+  const handleServiceClick = (service, isEdit) => {
+    setIsEditing(isEdit);
     setSelectedService(service);
-    setIsEditing(false);
     setIsNewService(false);
     setIsSheetOpen(true);
   };
 
   const handleNewService = () => {
-    setSelectedService({
-      id: services.length + 1,
-      name: "",
-      description: "",
-      duration: "",
-      price: "",
-      category: "",
-      isActive: true,
-      specialists: [] // Array vacío para nuevos servicios
-    });
-    setIsEditing(true);
+    setIsEditing(false);
     setIsNewService(true);
     setIsSheetOpen(true);
+    setSelectedService(null);
   };
 
-  const handleEdit = () => {
+  const handleEdit = (service) => {
+    setSelectedService(service);
     setIsEditing(true);
+    setIsNewService(false);
+  };
+
+  const handleCloseSheet = () => {
+    setIsSheetOpen(false);
+    setSelectedService(null);
+    setIsEditing(false);
     setIsNewService(false);
   };
 
   const handleDelete = () => {
     // Aquí irá la lógica para eliminar el servicio
     console.log("Eliminar servicio:", selectedService.id);
-    setIsSheetOpen(false);
+    handleCloseSheet();
   };
 
   const handleSubmit = (e) => {
@@ -79,6 +79,11 @@ export default function Services() {
       specialists: newSpecialists
     });
   };
+
+  const editing = selectedService && isEditing;
+  const viewing = selectedService && !isEditing && !isNewService;
+  const newService = isNewService && !isEditing;
+
 
   return (
     <div className="p-6">
@@ -114,29 +119,35 @@ export default function Services() {
       <Sheet
         isOpen={isSheetOpen}
         onClose={() => setIsSheetOpen(false)}
-        title={isNewService ? "Nuevo Servicio" : (isEditing ? "Editar Servicio" : selectedService?.name)}
+        title={newService ? "Nuevo Servicio" : (editing ? "Editar Servicio" : selectedService?.name)}
       >
-        {selectedService && (
-          <div className="space-y-6">
-            {isEditing ? (
-              <EditService
-                handleSubmit={handleSubmit}
-                selectedService={selectedService}
-                setSelectedService={setSelectedService}
-                specialists={specialists}
-                handleSpecialistToggle={handleSpecialistToggle}
-                setIsSheetOpen={setIsSheetOpen}
-              />
-            ) : (
-              <ServiceDetails
-                selectedService={selectedService}
-                specialists={specialists}
-                handleDelete={handleDelete}
-                handleEdit={handleEdit}
-              />
-            )}
-          </div>
-        )}
+        {editing ? (
+          <EditService
+            handleSubmit={handleSubmit}
+            selectedService={selectedService}
+            setSelectedService={setSelectedService}
+            specialists={specialists}
+            handleSpecialistToggle={handleSpecialistToggle}
+            setIsSheetOpen={setIsSheetOpen}
+          />
+        ) : null}
+
+        {viewing ? (
+          <ServiceDetails
+            selectedService={selectedService}
+            specialists={specialists}
+            handleDelete={handleDelete}
+            handleEdit={handleEdit}
+          />
+        ) : null}
+
+        {newService ? (
+          <NewService
+            specialists={specialists}
+            handleClose={handleCloseSheet}
+          />
+        ) : null}
+
       </Sheet>
     </div>
   );

@@ -1,5 +1,5 @@
-import { Button } from "../ui/Button";
-import { Toggle } from "../ui/Toggle";
+import { Button } from "../../ui/Button";
+import { Toggle } from "../../ui/Toggle";
 import { Checkbox, Field, Label } from '@headlessui/react';
 
 export default function EditService({ handleSubmit, selectedService, setSelectedService, specialists, handleSpecialistToggle, setIsSheetOpen }) {
@@ -12,7 +12,7 @@ export default function EditService({ handleSubmit, selectedService, setSelected
         <input
           type="text"
           value={selectedService.name}
-          onChange={(e) => setSelectedService({...selectedService, name: e.target.value})}
+          onChange={(e) => setSelectedService({ ...selectedService, name: e.target.value })}
           className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
           required
         />
@@ -23,7 +23,7 @@ export default function EditService({ handleSubmit, selectedService, setSelected
         </label>
         <textarea
           value={selectedService.description}
-          onChange={(e) => setSelectedService({...selectedService, description: e.target.value})}
+          onChange={(e) => setSelectedService({ ...selectedService, description: e.target.value })}
           className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
           rows="3"
           required
@@ -37,7 +37,7 @@ export default function EditService({ handleSubmit, selectedService, setSelected
           <input
             type="text"
             value={selectedService.duration}
-            onChange={(e) => setSelectedService({...selectedService, duration: e.target.value})}
+            onChange={(e) => setSelectedService({ ...selectedService, duration: e.target.value })}
             className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
             required
           />
@@ -49,7 +49,7 @@ export default function EditService({ handleSubmit, selectedService, setSelected
           <input
             type="text"
             value={selectedService.price}
-            onChange={(e) => setSelectedService({...selectedService, price: e.target.value})}
+            onChange={(e) => setSelectedService({ ...selectedService, price: e.target.value })}
             className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
             required
           />
@@ -66,7 +66,7 @@ export default function EditService({ handleSubmit, selectedService, setSelected
                 checked={selectedService.specialists?.includes(specialist.id)}
                 onChange={() => handleSpecialistToggle(specialist.id)}
                 className="group block size-4 rounded border bg-white data-[checked]:bg-black"
-                >
+              >
                 <svg className="stroke-white opacity-0 group-data-[checked]:opacity-100" viewBox="0 0 14 14" fill="none">
                   <path d="M3 8L6 11L11 3.5" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
@@ -78,7 +78,7 @@ export default function EditService({ handleSubmit, selectedService, setSelected
       </div>
       <Toggle
         checked={selectedService.isActive}
-        onChange={(value) => setSelectedService({...selectedService, isActive: value})}
+        onChange={(value) => setSelectedService({ ...selectedService, isActive: value })}
         label="Estado"
       />
       <div className="flex justify-end gap-2 pt-4">
