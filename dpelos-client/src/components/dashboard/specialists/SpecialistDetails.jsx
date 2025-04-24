@@ -1,5 +1,5 @@
 import { Edit, Scissors, Trash2 } from "lucide-react";
-import { Button } from "../ui/Button";
+import { Button } from "../../ui/Button";
 
 export default function SpecialistDetails({ selectedSpecialist, services, handleDelete, handleEdit }) {
   return (

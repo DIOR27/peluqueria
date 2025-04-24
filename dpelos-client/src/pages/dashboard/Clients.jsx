@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Sheet } from "../../components/ui/Sheet";
 import { Search } from "lucide-react";
-import ClientsTable from "../../components/dashboard/ClientsTable";
+import ClientsTable from "../../components/dashboard/clients/ClientsTable";
 import useClientStore from "../../stores/clientStore";
 
 export default function Clients() {

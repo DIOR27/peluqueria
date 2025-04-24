@@ -1,5 +1,5 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "../../components/ui/Button";
+import { Button } from "../../ui/Button";
 
 export default function ClientsTable({ clients, currentPage, setCurrentPage, handleClientClick }) {
   const itemsPerPage = 10;
