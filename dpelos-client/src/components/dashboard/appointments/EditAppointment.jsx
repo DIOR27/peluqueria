@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "../../ui/Button";
 import Select from "../../ui/Select";
+import Input from "../../ui/Input";
 
 export default function EditAppointment({ onClose, appointment = null }) {
   const [formData, setFormData] = useState({
@@ -46,15 +47,11 @@ export default function EditAppointment({ onClose, appointment = null }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Nombre del Cliente
-        </label>
-        <input
-          type="text"
-          name="clientName"
+        <Input
+          label="Nombre del Cliente"
           value={formData.clientName}
           onChange={(e) => handleChange(e?.target?.value ?? "", "clientName")}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
+          name="clientName"
           required
         />
       </div>
@@ -87,38 +84,24 @@ export default function EditAppointment({ onClose, appointment = null }) {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Fecha
-          </label>
-          <div className="relative">
-            <input
-              type="date"
-              name="date"
-              value={formData.date}
-              onChange={(e) => handleChange(e?.target?.value ?? "", "date")}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
-              required
-            />
-          </div>
+          <Input
+            label="Fecha"
+            value={formData.date}
+            onChange={(e) => handleChange(e?.target?.value ?? "", "date")}
+            name="date"
+            type="date"
+          />
         </div>
 
         <div>
-          <label
-            htmlFor="time"
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
-            Hora
-          </label>
-          <div className="relative">
-            <input
-              type="time"
-              name="time"
-              value={formData.time}
-              onChange={(e) => handleChange(e?.target?.value ?? "", "time")}
-              className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
-              required
-            />
-          </div>
+          <Input
+            label="Hora"
+            value={formData.time}
+            onChange={(e) => handleChange(e?.target?.value ?? "", "time")}
+            name="time"
+            type="time"
+            required
+          />
         </div>
       </div>
 
@@ -136,15 +119,12 @@ export default function EditAppointment({ onClose, appointment = null }) {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Precio
-        </label>
-        <input
-          type="number"
-          name="price"
+        <Input
+          label="Precio"
           value={formData.price}
           onChange={(e) => handleChange(e?.target?.value ?? "", "price")}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
+          name="price"
+          type="number"
           required
         />
       </div>

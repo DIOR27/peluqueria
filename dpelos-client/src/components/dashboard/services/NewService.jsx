@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { Button } from "../../ui/Button";
 import { Toggle } from "../../ui/Toggle";
-import { Checkbox, Field, Label } from '@headlessui/react';
+import { Checkbox, Field, Label } from "@headlessui/react";
+import Input from "../../ui/Input";
 
 export default function NewService({ specialists, handleClose }) {
   const [formData, setFormData] = useState({
@@ -11,7 +12,7 @@ export default function NewService({ specialists, handleClose }) {
     price: "",
     category: "",
     isActive: true,
-    specialists: [] // Array vacío para nuevos servicios
+    specialists: [], // Array vacío para nuevos servicios
   });
 
   const handleSubmit = (e) => {
@@ -23,14 +24,12 @@ export default function NewService({ specialists, handleClose }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Nombre del Servicio
-        </label>
-        <input
-          type="text"
+        <Input
+          label="Nombre"
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
+          name="name"
+          placeholder="Nombre del Servicio"
           required
         />
       </div>
@@ -40,7 +39,9 @@ export default function NewService({ specialists, handleClose }) {
         </label>
         <textarea
           value={formData.description}
-          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          onChange={(e) =>
+            setFormData({ ...formData, description: e.target.value })
+          }
           className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
           rows="3"
           required
@@ -48,27 +49,27 @@ export default function NewService({ specialists, handleClose }) {
       </div>
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Duración
-          </label>
-          <input
-            type="text"
+          <Input
+            label="Duración"
             value={formData.duration}
-            onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
+            onChange={(e) =>
+              setFormData({ ...formData, duration: e.target.value })
+            }
+            name="duration"
             required
+            type="number"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Precio
-          </label>
-          <input
-            type="text"
+          <Input
+            label="Precio"
             value={formData.price}
-            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-            className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
+            onChange={(e) =>
+              setFormData({ ...formData, price: e.target.value })
+            }
+            name="price"
             required
+            type="number"
           />
         </div>
       </div>
@@ -77,15 +78,24 @@ export default function NewService({ specialists, handleClose }) {
           Especialistas
         </label>
         <div className="grid grid-cols-2 gap-2">
-          {specialists.map(specialist => (
+          {specialists.map((specialist) => (
             <Field key={specialist.id} className="flex items-center gap-2">
               <Checkbox
                 checked={formData.specialists?.includes(specialist.id)}
                 onChange={(e) => console.log(e)}
                 className="group block size-4 rounded border bg-white data-[checked]:bg-black"
               >
-                <svg className="stroke-white opacity-0 group-data-[checked]:opacity-100" viewBox="0 0 14 14" fill="none">
-                  <path d="M3 8L6 11L11 3.5" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+                <svg
+                  className="stroke-white opacity-0 group-data-[checked]:opacity-100"
+                  viewBox="0 0 14 14"
+                  fill="none"
+                >
+                  <path
+                    d="M3 8L6 11L11 3.5"
+                    strokeWidth={2}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
                 </svg>
               </Checkbox>
               <Label className="text-sm text-gray-700">{specialist.name}</Label>
@@ -99,16 +109,10 @@ export default function NewService({ specialists, handleClose }) {
         label="Estado"
       />
       <div className="flex justify-end gap-2 pt-4">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleClose}
-        >
+        <Button type="button" variant="outline" onClick={handleClose}>
           Cancelar
         </Button>
-        <Button type="submit">
-          Guardar
-        </Button>
+        <Button type="submit">Guardar</Button>
       </div>
     </form>
   );

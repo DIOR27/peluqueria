@@ -8,6 +8,7 @@ import EditSpecialist from "../../components/dashboard/specialists/EditSpecialis
 import SpecialistDetails from "../../components/dashboard/specialists/SpecialistDetails";
 import useServiceStore from "../../stores/serviceStore";
 import NewSpecialist from "../../components/dashboard/specialists/NewSpecialist";
+import Input from "../../components/ui/Input";
 
 export default function Specialists() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -18,9 +19,10 @@ export default function Specialists() {
 
   const { specialists } = useSpecialistStore();
   const { services } = useServiceStore();
-  const filteredSpecialists = specialists.filter(specialist =>
-    specialist.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    specialist.position.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredSpecialists = specialists.filter(
+    (specialist) =>
+      specialist.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      specialist.position.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleSpecialistClick = (specialist, isEdit) => {
@@ -56,12 +58,12 @@ export default function Specialists() {
   const handleServiceToggle = (serviceId) => {
     const currentServices = selectedSpecialist.services || [];
     const newServices = currentServices.includes(serviceId)
-      ? currentServices.filter(id => id !== serviceId)
+      ? currentServices.filter((id) => id !== serviceId)
       : [...currentServices, serviceId];
 
     setSelectedSpecialist({
       ...selectedSpecialist,
-      services: newServices
+      services: newServices,
     });
   };
 
@@ -83,12 +85,11 @@ export default function Specialists() {
       <div className="mb-6">
         <div className="relative w-1/2">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Buscar especialistas..."
+          <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-black"
+            className="pl-10 pr-4 py-2"
+            placeholder="Buscar especialistas..."
           />
         </div>
       </div>
@@ -108,9 +109,12 @@ export default function Specialists() {
       <Sheet
         isOpen={isSheetOpen}
         onClose={handleCloseSheet}
-        title={newSpecialist ? "Nuevo Especialista" : selectedSpecialist?.name || "Detalles del Especialista"}
+        title={
+          newSpecialist
+            ? "Nuevo Especialista"
+            : selectedSpecialist?.name || "Detalles del Especialista"
+        }
       >
-
         {editing ? (
           <EditSpecialist
             selectedSpecialist={selectedSpecialist}
@@ -132,10 +136,7 @@ export default function Specialists() {
         ) : null}
 
         {newSpecialist ? (
-          <NewSpecialist
-            services={services}
-            handleClose={handleCloseSheet}
-          />
+          <NewSpecialist services={services} handleClose={handleCloseSheet} />
         ) : null}
       </Sheet>
     </div>
