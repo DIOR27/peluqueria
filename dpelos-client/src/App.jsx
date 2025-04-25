@@ -10,7 +10,6 @@ import Services from "./pages/dashboard/Services";
 import Specialists from "./pages/dashboard/Specialists";
 import Schedule from "./pages/schedule";
 import './App.css';
-import './index.css';
 
 const router = createBrowserRouter([
   {
