@@ -9,6 +9,8 @@ import Clients from "./pages/dashboard/Clients";
 import Services from "./pages/dashboard/Services";
 import Specialists from "./pages/dashboard/Specialists";
 import Schedule from "./pages/schedule";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 import './App.css';
 
 const router = createBrowserRouter([
@@ -28,8 +30,16 @@ const router = createBrowserRouter([
     ]
   },
   {
-    path: '/agendar', 
+    path: '/agendar',
     element: <Schedule />
+  },
+  {
+    path: '/ingresar',
+    element: <Login />
+  },
+  {
+    path: '/registro',
+    element: <Signup />
   }
 ]);
 
