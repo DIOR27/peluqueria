@@ -1,7 +1,7 @@
 import { useField } from "formik";
 import Input from "../ui/Input";
 
-const FormInput = ({ label, ...props }) => {
+const FormInput = ({ label, as, ...props }) => {
   const [field, meta] = useField(props);
   return (
     <div className="mb-4">
@@ -11,11 +11,19 @@ const FormInput = ({ label, ...props }) => {
       >
         {label}
       </label>
-      <Input
-        // className="mt-1 block w-full rounded-md bg-gray-100 border-transparent focus:border-gray-500 focus:bg-white focus:ring-0"
-        {...field}
-        {...props}
-      />
+      {as === "textarea" ? (
+        <textarea
+          {...field}
+          {...props}
+          className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black resize-none"
+        />
+      ) : (
+        <Input
+          // className="mt-1 block w-full rounded-md bg-gray-100 border-transparent focus:border-gray-500 focus:bg-white focus:ring-0"
+          {...field}
+          {...props}
+        />
+      )}
       {meta.touched && meta.error ? (
         <div className="text-red-500 text-xs">{meta.error}</div>
       ) : null}
