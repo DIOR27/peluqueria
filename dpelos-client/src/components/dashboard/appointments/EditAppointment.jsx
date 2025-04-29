@@ -20,6 +20,7 @@ export default function EditAppointment({ onClose, appointment = null }) {
     specialist: Yup.string().required("El especialista es requerido"),
     date: Yup.string().required("La fecha es requerida"),
     time: Yup.string().required("La hora es requerida"),
+    status: Yup.string().required("El estado es requerido"),
   });
 
   const onSubmit = (values, { setSubmitting }) => {
