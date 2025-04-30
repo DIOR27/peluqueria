@@ -135,6 +135,7 @@ export default function Services() {
             specialists={specialists}
             handleSpecialistToggle={handleSpecialistToggle}
             setIsSheetOpen={setIsSheetOpen}
+            handleClose={handleCloseSheet}
           />
         ) : null}
 

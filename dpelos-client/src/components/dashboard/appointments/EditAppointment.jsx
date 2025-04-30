@@ -1,28 +1,34 @@
-import { useState } from "react";
 import { Button } from "../../ui/Button";
-import Select from "../../ui/Select";
-import Input from "../../ui/Input";
+import { Form, Formik } from "formik";
+import FormInput from "../../ui/FormInput";
+import * as Yup from "yup";
+import FormSelect from "../../ui/FormSelect";
 
 export default function EditAppointment({ onClose, appointment = null }) {
-  const [formData, setFormData] = useState({
+  const initialValues = {
     clientName: appointment?.clientName || "",
     service: appointment?.service || "",
     specialist: appointment?.specialist || "",
+    status: appointment?.status || "",
     date: appointment?.date || new Date().toISOString().split("T")[0],
     time: appointment?.time || "",
-    status: appointment?.status || "pending",
-    price: appointment?.price || "",
-  });
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Aquí manejaremos la lógica para guardar/actualizar la cita
-    console.log(formData);
-    onClose();
   };
 
-  const handleChange = (value, name) => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const validationSchema = Yup.object({
+    clientName: Yup.string().required("El nombre del cliente es requerido"),
+    service: Yup.string().required("El servicio es requerido"),
+    specialist: Yup.string().required("El especialista es requerido"),
+    date: Yup.string().required("La fecha es requerida"),
+    time: Yup.string().required("La hora es requerida"),
+    status: Yup.string().required("El estado es requerido"),
+  });
+
+  const onSubmit = (values, { setSubmitting }) => {
+    setTimeout(() => {
+      alert(JSON.stringify(values, null, 2));
+      setSubmitting(false);
+    }, 400);
+    onClose();
   };
 
   const specialistsOptions = [
@@ -45,96 +51,63 @@ export default function EditAppointment({ onClose, appointment = null }) {
   ];
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div>
-        <Input
+    <Formik
+      initialValues={initialValues}
+      validationSchema={validationSchema}
+      onSubmit={onSubmit}
+    >
+      <Form>
+        <FormInput
           label="Nombre del Cliente"
-          value={formData.clientName}
-          onChange={(e) => handleChange(e?.target?.value ?? "", "clientName")}
           name="clientName"
-          required
+          placeholder="Ingresa el nombre del cliente"
         />
-      </div>
+        <div className="flex flex-col gap-4 mb-4">
+          <FormSelect
+            label="Servicio"
+            name="service"
+            options={servicesOptions}
+            placeholder="Selecciona un servicio"
+            value={servicesOptions.find(
+              (service) => service.value === appointment?.service
+            )}
+            isClearable
+          />
 
-      <div>
-        <Select
-          value={servicesOptions.find(
-            (service) => service.value === formData.service
-          )}
-          options={servicesOptions}
-          onChange={(e) => handleChange(e?.value ?? "", "service")}
-          isClearable
-          placeholder="Seleccionar servicio"
-          label="Servicio"
-        />
-      </div>
-
-      <div>
-        <Select
-          value={specialistsOptions.find(
-            (specialist) => specialist.value === formData.specialist
-          )}
-          options={specialistsOptions}
-          onChange={(e) => handleChange(e?.value ?? "", "specialist")}
-          isClearable
-          placeholder="Seleccionar especialista"
-          label="Especialista"
-        />
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Input
-            label="Fecha"
-            value={formData.date}
-            onChange={(e) => handleChange(e?.target?.value ?? "", "date")}
-            name="date"
-            type="date"
+          <FormSelect
+            label="Especialista"
+            name="specialist"
+            options={specialistsOptions}
+            placeholder="Selecciona un especialista"
+            value={specialistsOptions.find(
+              (specialist) => specialist.value === appointment?.specialist
+            )}
+            isClearable
           />
         </div>
-
-        <div>
-          <Input
-            label="Hora"
-            value={formData.time}
-            onChange={(e) => handleChange(e?.target?.value ?? "", "time")}
-            name="time"
-            type="time"
-            required
-          />
+        <div className="grid grid-cols-2 gap-4">
+          <FormInput label="Fecha" name="date" type="date" />
+          <FormInput label="Hora" name="time" type="time" />
         </div>
-      </div>
 
-      <div>
-        <Select
-          value={statusOptions.find(
-            (status) => status.value === formData.status
-          )}
-          options={statusOptions}
-          onChange={(e) => handleChange(e?.value ?? "", "status")}
-          isClearable
-          placeholder="Seleccionar estado"
+        <FormSelect
           label="Estado"
+          name="status"
+          options={statusOptions}
+          placeholder="Selecciona un estado"
+          value={statusOptions.find(
+            (status) => status.value === appointment?.status
+          )}
+          isClearable
         />
-      </div>
 
-      <div>
-        <Input
-          label="Precio"
-          value={formData.price}
-          onChange={(e) => handleChange(e?.target?.value ?? "", "price")}
-          name="price"
-          type="number"
-          required
-        />
-      </div>
-
-      <div className="flex justify-end gap-2 pt-4">
-        <Button type="button" variant="outline" onClick={onClose}>
-          Cancelar
-        </Button>
-        <Button type="submit">Actualizar</Button>
-      </div>
-    </form>
+        <div className="flex justify-end gap-2 mt-8">
+          <Button type="button" variant="outline" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button type="submit">Actualizar</Button>
+        </div>
+      </Form>
+    </Formik>
   );
 }
