@@ -1,7 +1,15 @@
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "../../lib/utils";
-import { Settings, Calendar, Users, Scissors, MoreVertical, LogOut } from "lucide-react";
-import { Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react'
+import {
+  Settings,
+  Calendar,
+  Users,
+  Scissors,
+  MoreVertical,
+  LogOut,
+  UserSquare,
+} from "lucide-react";
+import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 
 const navigation = [
   { name: "Citas", href: "/panel", icon: Calendar },
@@ -9,6 +17,7 @@ const navigation = [
   { name: "Especialistas", href: "/panel/especialistas", icon: Users },
   { name: "Servicios", href: "/panel/servicios", icon: Scissors },
   { name: "Configuración", href: "/panel/configuraciones", icon: Settings },
+  { name: "Perfil", href: "/panel/perfil", icon: UserSquare },
 ];
 
 export default function Sidebar() {
@@ -16,14 +25,14 @@ export default function Sidebar() {
 
   const user = {
     name: "Juan Pérez",
-    email: "juan@dpelos.com"
+    email: "juan@dpelos.com",
   };
 
   const getInitials = (name) => {
     return name
-      .split(' ')
-      .map(word => word[0])
-      .join('')
+      .split(" ")
+      .map((word) => word[0])
+      .join("")
       .toUpperCase();
   };
 
@@ -60,7 +69,9 @@ export default function Sidebar() {
             {getInitials(user.name)}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-900 truncate">{user.name}</p>
+            <p className="text-sm font-medium text-gray-900 truncate">
+              {user.name}
+            </p>
             <p className="text-xs text-gray-500 truncate">{user.email}</p>
           </div>
           <Menu>
@@ -78,9 +89,21 @@ export default function Sidebar() {
                 </button>
               </MenuItem>
               <MenuItem className="w-[180px] px-4 py-2 cursor-pointer">
-                <Link className=" data-[focus]:bg-gray-100 flex items-center gap-2" to="/panel/configuraciones">
+                <Link
+                  className=" data-[focus]:bg-gray-100 flex items-center gap-2"
+                  to="/panel/configuraciones"
+                >
                   <Settings className="h-4 w-4" />
                   Configuración
+                </Link>
+              </MenuItem>
+              <MenuItem className="w-[180px] px-4 py-2 cursor-pointer">
+                <Link
+                  className=" data-[focus]:bg-gray-100 flex items-center gap-2"
+                  to="/panel/perfil"
+                >
+                  <UserSquare className="h-4 w-4" />
+                  Perfil
                 </Link>
               </MenuItem>
             </MenuItems>
