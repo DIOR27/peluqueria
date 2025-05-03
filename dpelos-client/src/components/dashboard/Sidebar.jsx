@@ -10,6 +10,7 @@ import {
   UserSquare,
 } from "lucide-react";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
+import useAuthStore from "../../stores/authStore";
 
 const navigation = [
   { name: "Citas", href: "/panel", icon: Calendar },
@@ -22,6 +23,7 @@ const navigation = [
 
 export default function Sidebar() {
   const location = useLocation();
+  const { logout } = useAuthStore();
 
   const user = {
     name: "Juan Pérez",
@@ -83,7 +85,10 @@ export default function Sidebar() {
               className="bg-white shadow-lg rounded-md flex flex-col gap-2 border border-gray-200 text-sm text-gray-700 focus:outline-none"
             >
               <MenuItem className="w-[180px] px-4 py-2 cursor-pointer">
-                <button className=" data-[focus]:bg-gray-100 flex items-center gap-2">
+                <button
+                  onClick={logout}
+                  className=" data-[focus]:bg-gray-100 flex items-center gap-2"
+                >
                   <LogOut className="h-4 w-4 text-red-500" />
                   Cerrar sesión
                 </button>
