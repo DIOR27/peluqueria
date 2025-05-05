@@ -161,6 +161,53 @@ class EspecialistaServicioViewSet(ModelViewSet):
     serializer_class = EspecialistaServicioSerializer
     permission_classes = [DjangoModelPermissions]
 
+    def create(self, request, *args, **kwargs):
+        servicios_ids = request.data.pop('servicios', [])
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        especialista = serializer.save()
+
+        # Crear relaciones con servicios
+        for servicio_id in servicios_ids:
+            try:
+                servicio = Servicio.objects.get(id=servicio_id)
+                EspecialistaServicio.objects.create(especialista_id=especialista, servicio_id=servicio)
+            except Servicio.DoesNotExist:
+                continue  # O puedes retornar un error
+
+        return Response({
+            'message': 'Especialista creado con servicios asociados',
+            'especialista_id': especialista.id
+        }, status=status.HTTP_201_CREATED)
+    
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        servicios_ids = request.data.pop('servicios', None)
+
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        especialista = serializer.save()
+
+        # Si se especificaron servicios, actualizamos las asociaciones
+        if servicios_ids is not None:
+            # Eliminamos las relaciones actuales
+            EspecialistaServicio.objects.filter(especialista_id=especialista).delete()
+
+            # Creamos nuevas relaciones
+            for servicio_id in servicios_ids:
+                try:
+                    servicio = Servicio.objects.get(id=servicio_id)
+                    EspecialistaServicio.objects.create(especialista_id=especialista, servicio_id=servicio)
+                except Servicio.DoesNotExist:
+                    continue  # o return error si quieres ser más estricto
+
+        return Response({
+            'message': 'Especialista actualizado correctamente',
+            'especialista_id': especialista.id
+        }, status=status.HTTP_200_OK)
+
+
 class ReservaViewSet(ModelViewSet):
     queryset = Reserva.objects.all()
     serializer_class = ReservaSerializer
