@@ -12,7 +12,8 @@ from datetime import datetime, timedelta
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.conf import settings
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 
 import locale
 
@@ -129,6 +130,21 @@ class UsuarioViewSet(ModelViewSet):
                 'Direccion': usuario.direccion,
             }
         }, status=status.HTTP_200_OK)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_info(request):
+    user = request.user
+    return Response({
+        'id': user.id,
+        'email': user.email,
+        'first_name': user.first_name,
+        'last_name': user.last_name,
+        'telefono': user.telefono,
+        'direccion': user.direccion,
+        'is_staff': user.is_staff,
+        'groups': [group.name for group in user.groups.all()]
+    })
 
 class EspecialistaViewSet(ModelViewSet):
     queryset = Especialista.objects.all()

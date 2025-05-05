@@ -20,6 +20,7 @@ class Especialista(models.Model):
     especialidad = models.CharField(max_length=100, blank=True, null=True)
     foto_url = models.URLField(blank=True, null=True)
     descripcion = models.TextField(blank=True, null=True)
+    activo = models.BooleanField(default=True)
 
     def __str__(self):
         return f'{self.nombre} {self.apellido} - {self.especialidad.capitalize()}'
