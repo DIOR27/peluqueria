@@ -12,7 +12,8 @@ from datetime import datetime, timedelta
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.conf import settings
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 
 import locale
 
@@ -130,6 +131,21 @@ class UsuarioViewSet(ModelViewSet):
             }
         }, status=status.HTTP_200_OK)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def user_info(request):
+    user = request.user
+    return Response({
+        'id': user.id,
+        'email': user.email,
+        'first_name': user.first_name,
+        'last_name': user.last_name,
+        'telefono': user.telefono,
+        'direccion': user.direccion,
+        'is_staff': user.is_staff,
+        'groups': [group.name for group in user.groups.all()]
+    })
+
 class EspecialistaViewSet(ModelViewSet):
     queryset = Especialista.objects.all()
     serializer_class = EspecialistaSerializer
@@ -144,6 +160,53 @@ class EspecialistaServicioViewSet(ModelViewSet):
     queryset = EspecialistaServicio.objects.all()
     serializer_class = EspecialistaServicioSerializer
     permission_classes = [DjangoModelPermissions]
+
+    def create(self, request, *args, **kwargs):
+        servicios_ids = request.data.pop('servicios', [])
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        especialista = serializer.save()
+
+        # Crear relaciones con servicios
+        for servicio_id in servicios_ids:
+            try:
+                servicio = Servicio.objects.get(id=servicio_id)
+                EspecialistaServicio.objects.create(especialista_id=especialista, servicio_id=servicio)
+            except Servicio.DoesNotExist:
+                continue  # O puedes retornar un error
+
+        return Response({
+            'message': 'Especialista creado con servicios asociados',
+            'especialista_id': especialista.id
+        }, status=status.HTTP_201_CREATED)
+    
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        servicios_ids = request.data.pop('servicios', None)
+
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        especialista = serializer.save()
+
+        # Si se especificaron servicios, actualizamos las asociaciones
+        if servicios_ids is not None:
+            # Eliminamos las relaciones actuales
+            EspecialistaServicio.objects.filter(especialista_id=especialista).delete()
+
+            # Creamos nuevas relaciones
+            for servicio_id in servicios_ids:
+                try:
+                    servicio = Servicio.objects.get(id=servicio_id)
+                    EspecialistaServicio.objects.create(especialista_id=especialista, servicio_id=servicio)
+                except Servicio.DoesNotExist:
+                    continue  # o return error si quieres ser más estricto
+
+        return Response({
+            'message': 'Especialista actualizado correctamente',
+            'especialista_id': especialista.id
+        }, status=status.HTTP_200_OK)
+
 
 class ReservaViewSet(ModelViewSet):
     queryset = Reserva.objects.all()

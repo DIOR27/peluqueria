@@ -11,6 +11,7 @@ from .views import (
     NotificacionViewSet,
     InformacionNegocioViewSet,
     HorarioTrabajoViewSet,
+    user_info,
 )
 
 default_router = DefaultRouter()
@@ -34,6 +35,7 @@ urlpatterns = [
         obtener_reserva_por_codigo,
         name="reserva-por-codigo",
     ),
+    path("me/", user_info, name="me"),
 ]
 
 urlpatterns += default_router.urls
