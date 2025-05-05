@@ -151,10 +151,46 @@ class EspecialistaViewSet(ModelViewSet):
     serializer_class = EspecialistaSerializer
     permission_classes = [DjangoModelPermissions]
 
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def change_specialist_status(request, pk, set_active):
+    if not request.user.is_staff:
+        return Response({'error': 'No tienes permiso para realizar esta acción'}, status=status.HTTP_403_FORBIDDEN)
+
+    try:
+        especialista = Especialista.objects.get(pk=pk)
+    except Especialista.DoesNotExist:
+        return Response({'error': 'Especialista no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
+    if set_active not in [0, 1]:
+        return Response({'error': 'El valor debe ser 1 (activo) o 0 (inactivo)'}, status=status.HTTP_400_BAD_REQUEST)
+
+    especialista.activo = bool(set_active)
+    especialista.save()
+    return Response({'message': f'Especialista {"activado" if especialista.activo else "desactivado"} correctamente'})
+
 class ServicioViewSet(ModelViewSet):
     queryset = Servicio.objects.all()
     serializer_class = ServicioSerializer
     permission_classes = [DjangoModelPermissions]
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def change_service_status(request, pk, set_active):
+    if not request.user.is_staff:
+        return Response({'error': 'No tienes permiso para realizar esta acción'}, status=status.HTTP_403_FORBIDDEN)
+
+    try:
+        servicio = Servicio.objects.get(pk=pk)
+    except Servicio.DoesNotExist:
+        return Response({'error': 'Servicio no encontrado'}, status=status.HTTP_404_NOT_FOUND)
+
+    if set_active not in [0, 1]:
+        return Response({'error': 'El valor debe ser 1 (activo) o 0 (inactivo)'}, status=status.HTTP_400_BAD_REQUEST)
+
+    servicio.activo = bool(set_active)
+    servicio.save()
+    return Response({'message': f'Servicio {"activado" if servicio.activo else "desactivado"} correctamente'})
 
 class EspecialistaServicioViewSet(ModelViewSet):
     queryset = EspecialistaServicio.objects.all()
@@ -206,7 +242,6 @@ class EspecialistaServicioViewSet(ModelViewSet):
             'message': 'Especialista actualizado correctamente',
             'especialista_id': especialista.id
         }, status=status.HTTP_200_OK)
-
 
 class ReservaViewSet(ModelViewSet):
     queryset = Reserva.objects.all()
