@@ -23,20 +23,9 @@ const navigation = [
 
 export default function Sidebar() {
   const location = useLocation();
-  const { logout } = useAuthStore();
+  const { user, logout } = useAuthStore();
 
-  const user = {
-    name: "Juan Pérez",
-    email: "juan@dpelos.com",
-  };
-
-  const getInitials = (name) => {
-    return name
-      .split(" ")
-      .map((word) => word[0])
-      .join("")
-      .toUpperCase();
-  };
+  const userInitials = `${user?.first_name?.[0] || ''}${user?.last_name?.[0] || ''}`;
 
   return (
     <div className="flex h-full w-64 flex-col border-r border-gray-200 bg-white">
@@ -68,13 +57,13 @@ export default function Sidebar() {
       <div className="relative border-b border-gray-200 p-4">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gold-500 text-white font-medium">
-            {getInitials(user.name)}
+            {userInitials}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-gray-900 truncate">
-              {user.name}
+              {user?.first_name} {user?.last_name}
             </p>
-            <p className="text-xs text-gray-500 truncate">{user.email}</p>
+            <p className="text-xs text-gray-500 truncate">{user?.email}</p>
           </div>
           <Menu>
             <MenuButton className="p-1 hover:bg-gray-100 rounded-full focus:outline-none">

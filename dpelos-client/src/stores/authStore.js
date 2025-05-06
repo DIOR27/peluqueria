@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import axios from 'axios';
 import { toast } from 'react-toastify';
 import api from '../../api';
 
@@ -29,6 +28,7 @@ const useAuthStore = create((set, get) => ({
         isAuthenticated: false,
       });
       toast.error("Error al iniciar sesión. Por favor, verifica tus credenciales.");
+      console.error('Error during login:', error);
       return false;
     } finally {
       set({ loading: false });
@@ -38,9 +38,10 @@ const useAuthStore = create((set, get) => ({
   logout: () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
-    delete axios.defaults.headers.common['Authorization'];
+    delete api.defaults.headers.common['Authorization'];
 
     set({ accessToken: null, refreshToken: null, isAuthenticated: false, user: null });
+    window.location.href = '/ingresar';
   },
 
   refreshAccessToken: async () => {
@@ -51,12 +52,10 @@ const useAuthStore = create((set, get) => ({
         throw new Error('No hay token de actualización disponible.');
       }
 
-      // const response = await axios.post('http://localhost:8000/api/token/refresh/', { refresh: refreshToken });
       const response = await api.post('/token/refresh/', { refresh: refreshToken });
       const { access } = response.data;
 
       localStorage.setItem('accessToken', access);
-      axios.defaults.headers.common['Authorization'] = `Bearer ${access}`;
 
       set({ accessToken: access, error: null });
       return true;
@@ -69,19 +68,21 @@ const useAuthStore = create((set, get) => ({
   },
 
   setTokens: (accessToken, refreshToken) => {
-    localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
-
-    axios.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
+    if (accessToken) {
+      localStorage.setItem('accessToken', accessToken);
+    }
+    if (refreshToken) {
+      localStorage.setItem('refreshToken', refreshToken);
+    }
 
     set({ accessToken, refreshToken, isAuthenticated: true, error: null });
   },
 
   fetchUserInfo: async () => {
     try {
-      // TODO: update this with new /me endopoint
-      // const response = await axios.get('http://localhost:8000/api/user/');
-      // set({ user: response.data });
+      const response = await api.get('/me/');
+      const { first_name, last_name, email } = response.data;
+      set({ user: { first_name, last_name, email } });
     } catch (error) {
       set({ error: error.message });
     }
