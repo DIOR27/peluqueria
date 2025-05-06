@@ -4,13 +4,18 @@ import FormInput from "../../ui/FormInput";
 import * as Yup from "yup";
 import FormServicesCheckbox from "./FormServicesCheckbox";
 import FormStatusToggle from "../../ui/FormStatusToggle";
+import useSpecialistStore from "../../../stores/specialistStore";
+import useServiceStore from "../../../stores/serviceStore";
 
-export default function NewSpecialist({ services, handleClose }) {
+
+export default function NewSpecialist({ handleClose }) {
+  const { createSpecialist } = useSpecialistStore();
+  const { services } = useServiceStore();
+
   const initialValues = {
     name: "",
+    lastname: "",
     position: "",
-    email: "",
-    phone: "",
     bio: "",
     isActive: true,
     services: [],
@@ -18,13 +23,8 @@ export default function NewSpecialist({ services, handleClose }) {
 
   const validationSchema = Yup.object({
     name: Yup.string().required("El nombre es requerido"),
-    position: Yup.string().required("El cargo es requerido"),
-    email: Yup.string()
-      .email("Formato de email inválido")
-      .required("El email es requerido"),
-    phone: Yup.string()
-      .required("El teléfono es requerido")
-      .matches(/^\d+$/, "Formato de teléfono inválido"),
+    lastname: Yup.string().required("El apellido es requerido"),
+    position: Yup.string().required("La especialidad es requerido"),
     bio: Yup.string().required("La biografía es requerida"),
     isActive: Yup.boolean().required("El estado es requerido"),
     services: Yup.array()
@@ -33,9 +33,8 @@ export default function NewSpecialist({ services, handleClose }) {
       .required("Los servicios son requeridos"),
   });
 
-  const handleSubmit = (values, { setSubmitting }) => {
-    console.log("Submitting form with values:", values);
-    // Aquí irá la lógica para crear el especialista
+  const handleSubmit = async (values, { setSubmitting }) => {
+    await createSpecialist(values);
     setSubmitting(false);
     handleClose();
   };
@@ -49,15 +48,22 @@ export default function NewSpecialist({ services, handleClose }) {
       >
         {({ errors, touched, isSubmitting }) => (
           <Form>
+            <div className="flex gap-4">
+              <FormInput
+                label="Nombre"
+                name="name"
+                placeholder="Nombre del especialista"
+              />
+              <FormInput
+                label="Apellido"
+                name="lastname"
+                placeholder="Apellido del especialista"
+              />
+            </div>
             <FormInput
-              label="Nombre"
-              name="name"
-              placeholder="Nombre del especialista"
-            />
-            <FormInput
-              label="Cargo"
+              label="Especialidad"
               name="position"
-              placeholder="Cargo del especialista"
+              placeholder="Especialidad del especialista"
             />
             <FormInput
               label="Biografía"
@@ -66,18 +72,6 @@ export default function NewSpecialist({ services, handleClose }) {
               as="textarea"
               rows={3}
             />
-            <div className="grid grid-cols-2 gap-4">
-              <FormInput
-                label="Email"
-                name="email"
-                placeholder="Email del especialista"
-              />
-              <FormInput
-                label="Teléfono"
-                name="phone"
-                placeholder="Teléfono del especialista"
-              />
-            </div>
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Servicios

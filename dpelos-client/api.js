@@ -53,10 +53,15 @@ api.interceptors.response.use(
         // Obtenemos el nuevo access token
         const { access } = response.data;
 
-        // Actualizar el token en el store
-        useAuthStore.setState({
-          accessToken: access
-        });
+        //Actualizamos el token en el store de Zustand
+        localStorage.setItem('accessToken', access);
+        useAuthStore.setState({ accessToken: access });
+
+        //Actualizamos el token en los headers predeterminados de la instancia api
+        api.defaults.headers.common['Authorization'] = `Bearer ${access}`;
+
+        //Actualizamos el token en la solicitud original
+        originalRequest.headers['Authorization'] = `Bearer ${access}`;
 
         // Actualizamos el token en la solicitud original y reintentarla
         originalRequest.headers.Authorization = `Bearer ${access}`;
