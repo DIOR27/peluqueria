@@ -20,11 +20,8 @@
     "react-router-dom": "^7.5.1",
     "react-select": "^5.10.1",
     "tailwind-merge": "^3.2.0",
-<<<<<<< HEAD
-=======
     "tailwindcss": "^4.1.4",
     "yup": "^1.6.1",
->>>>>>> main
     "zustand": "^5.0.3"
   },
   "devDependencies": {
