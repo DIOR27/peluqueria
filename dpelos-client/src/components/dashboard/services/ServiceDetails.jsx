@@ -1,5 +1,5 @@
 import { Edit, Trash2, User } from "lucide-react";
-import { Button } from "../ui/Button";
+import { Button } from "../../ui/Button";
 
 export default function ServiceDetails({ selectedService, specialists, handleDelete, handleEdit }) {
   return (
@@ -21,9 +21,8 @@ export default function ServiceDetails({ selectedService, specialists, handleDel
         </div>
         <div className="flex items-center gap-2">
           <h4 className="text-sm font-medium text-gray-500">Estado:</h4>
-          <span className={`text-sm ${
-            selectedService.isActive ? "text-green-600" : "text-gray-500"
-          }`}>
+          <span className={`text-sm ${selectedService.isActive ? "text-green-600" : "text-gray-500"
+            }`}>
             {selectedService.isActive ? "Activo" : "Inactivo"}
           </span>
         </div>
@@ -51,7 +50,7 @@ export default function ServiceDetails({ selectedService, specialists, handleDel
           <Trash2 className="w-4 h-4 mr-2" />
           Eliminar
         </Button>
-        <Button onClick={handleEdit}>
+        <Button onClick={() => handleEdit(selectedService)}>
           <Edit className="w-4 h-4 mr-2" />
           Editar
         </Button>

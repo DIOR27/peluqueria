@@ -12,19 +12,56 @@ def crear_grupos_y_permisos(sender, **kwargs):
     admin_group, _ = Group.objects.get_or_create(name="Administrador")
     cliente_group, _ = Group.objects.get_or_create(name="Cliente")
 
-    # Obtener el modelo personalizado de Usuario
+    # Modelos para permisos del administrador
+    modelos_admin = [
+        'Usuario',
+        'Especialista',
+        'Servicio',
+        'EspecialistaServicio',
+        'Reserva',
+        'Notificacion',
+        'InformacionNegocio',
+        'HorarioTrabajo'
+    ]
+
+    permisos_para_admin = []
+
+    for nombre_modelo in modelos_admin:
+        Modelo = apps.get_model('peluqueria', nombre_modelo)
+        content_type = ContentType.objects.get_for_model(Modelo)
+        permisos = Permission.objects.filter(content_type=content_type)
+        permisos_para_admin.extend(permisos)
+
+    admin_group.permissions.set(permisos_para_admin)
+
+    # Permisos del cliente: puede cambiar su perfil y gestionar sus reservas
+    permisos_cliente = []
+
+    # Permiso para editar su perfil
     Usuario = apps.get_model('peluqueria', 'Usuario')
-    content_type = ContentType.objects.get_for_model(Usuario)
+    ct_usuario = ContentType.objects.get_for_model(Usuario)
+    permiso_editar_usuario = Permission.objects.filter(
+        codename='change_usuario',
+        content_type=ct_usuario
+    ).first()
+    if permiso_editar_usuario:
+        permisos_cliente.append(permiso_editar_usuario)
 
-    # Asignar todos los permisos al grupo Administrador
-    permisos_admin = Permission.objects.filter(content_type=content_type)
-    admin_group.permissions.set(permisos_admin)
-
-    # Asignar solo permiso de edición al Cliente (verificamos si existe)
-    permiso_editar = Permission.objects.filter(
-        codename__startswith='change_',
-        content_type=content_type
+    # Permisos para crear y editar reservas
+    Reserva = apps.get_model('peluqueria', 'Reserva')
+    ct_reserva = ContentType.objects.get_for_model(Reserva)
+    permiso_add_reserva = Permission.objects.filter(
+        codename='add_reserva',
+        content_type=ct_reserva
+    ).first()
+    permiso_change_reserva = Permission.objects.filter(
+        codename='change_reserva',
+        content_type=ct_reserva
     ).first()
 
-    if permiso_editar:
-        cliente_group.permissions.set([permiso_editar])
+    for p in [permiso_add_reserva, permiso_change_reserva]:
+        if p:
+            permisos_cliente.append(p)
+
+    cliente_group.permissions.set(permisos_cliente)
+

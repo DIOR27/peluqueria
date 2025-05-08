@@ -8,6 +8,12 @@ from .views import (
     EspecialistaServicioViewSet,
     ReservaViewSet,
     obtener_reserva_por_codigo,
+    NotificacionViewSet,
+    InformacionNegocioViewSet,
+    HorarioTrabajoViewSet,
+    user_info,
+    change_specialist_status,
+    change_service_status,
 )
 
 default_router = DefaultRouter()
@@ -21,6 +27,9 @@ default_router.register(
     basename="especialistaservicio",
 )
 default_router.register(r"reservas", ReservaViewSet, basename="reserva")
+default_router.register(r"notificaciones", NotificacionViewSet, basename="notificacion")
+default_router.register(r"informacionnegocio", InformacionNegocioViewSet, basename="informacionnegocio")
+default_router.register(r"horariotrabajo", HorarioTrabajoViewSet, basename="horariotrabajo")
 
 urlpatterns = [
     path(
@@ -28,6 +37,9 @@ urlpatterns = [
         obtener_reserva_por_codigo,
         name="reserva-por-codigo",
     ),
+    path("me/", user_info, name="me"),
+    path('especialistas/<int:pk>/activo/<int:set_active>/', change_specialist_status, name='estadoespecialista'),
+    path('servicios/<int:pk>/activo/<int:set_active>/', change_service_status, name='estadoservicio'),
 ]
 
 urlpatterns += default_router.urls

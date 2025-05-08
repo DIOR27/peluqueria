@@ -20,6 +20,7 @@ class Especialista(models.Model):
     especialidad = models.CharField(max_length=100, blank=True, null=True)
     foto_url = models.URLField(blank=True, null=True)
     descripcion = models.TextField(blank=True, null=True)
+    activo = models.BooleanField(default=True)
 
     def __str__(self):
         return f'{self.nombre} {self.apellido} - {self.especialidad.capitalize()}'
@@ -30,6 +31,7 @@ class Servicio(models.Model):
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     duracion_estimada = models.IntegerField(help_text="Duración en minutos")
     imagen_url = models.URLField(blank=True, null=True)
+    activo = models.BooleanField(default=True)
 
     def __str__(self):
         return self.nombre
@@ -49,3 +51,38 @@ class Reserva(models.Model):
 
     def __str__(self):
         return f"Reserva de {self.usuario_id} con {self.especialista_id} para {self.servicio_id} en {self.fecha} a las {self.hora}"
+
+class Notificacion(models.Model):
+    usuario_id = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    por_email = models.BooleanField(default=True)
+    por_sms = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Notificación - {self.usuario_id}"
+
+class InformacionNegocio(models.Model):
+    nombre = models.CharField(max_length=100)
+    direccion = models.CharField(max_length=200)
+    telefono = models.CharField(max_length=20)
+    email = models.EmailField()
+
+    def __str__(self):
+        return self.nombre
+
+class HorarioTrabajo(models.Model):
+    DIA_CHOICES = [
+        ('LU', 'Lunes'),
+        ('MA', 'Martes'),
+        ('MI', 'Miércoles'),
+        ('JU', 'Jueves'),
+        ('VI', 'Viernes'),
+        ('SA', 'Sábado'),
+        ('DO', 'Domingo'),
+    ]
+    dia = models.CharField(max_length=2, choices=DIA_CHOICES)
+    hora_inicio = models.TimeField()
+    hora_fin = models.TimeField()
+    activo = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.get_dia_display()} ({self.hora_inicio} - {self.hora_fin})"

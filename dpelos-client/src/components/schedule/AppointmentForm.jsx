@@ -1,19 +1,46 @@
-import React, { useState } from "react";
-import { Button } from "../ui/Button";
-import { Image } from "../ui/Image";
-import Select from "react-select";
+
+import { Formik, Form } from "formik";
+import * as Yup from "yup";
+import FormInput from "../ui/FormInput";
+import FormSelect from "../ui/FormSelect";
+import "./AppointmentForm.css";
 import dpelosn from "../../assets/dpelosn.svg";
 
-const customStyles = {
-  control: (provided, state) => ({
-    ...provided,
-    borderColor: state.isFocused ? "#000000" : "#d1d5db",
-    boxShadow: state.isFocused ? "0 0 0 1px #000000" : "none",
-    "&:hover": {
-      borderColor: state.isFocused ? "#000000" : "#9ca3af",
-    },
-  }),
+const servicesOptions = [
+  { value: "corte", label: "Corte" },
+  { value: "barba", label: "Barba" },
+];
+
+const specialistsOptions = [
+  { value: "juan", label: "Juan" },
+  { value: "mario", label: "Mario" },
+];
+
+const initialValues = {
+  servicio: "",
+  especialista: "",
+  fecha: "",
+  hora: "",
+  nombre: "",
+  apellido: "",
+  email: "",
+  telefono: "",
 };
+
+const validationSchema = Yup.object({
+  servicio: Yup.string().required("El servicio es requerido"),
+  especialista: Yup.string().required("El especialista es requerido"),
+  fecha: Yup.string().required("La fecha es requerida"),
+  hora: Yup.string().required("La hora es requerida"),
+  nombre: Yup.string().required("El nombre es requerido"),
+  apellido: Yup.string().required("El apellido es requerido"),
+  email: Yup.string()
+    .email("Formato de email inválido")
+    .required("El email es requerido"),
+  telefono: Yup.string()
+    .matches(/^\d+$/, "Formato de teléfono inválido")
+    .required("El teléfono es requerido"),
+});
 
 const AppointmentForm = () => {
   const [selectedHour, setSelectedHour] = useState(null);
@@ -39,8 +66,13 @@ const AppointmentForm = () => {
     { value: "roberto", label: "Roberto Sánchez" },
   ];
 
-  const handleHourClick = (hour) => {
+  const handleHourClick = (hour, setFieldValue) => {
     setSelectedHour(hour);
+    setFieldValue("hora", hour);
+  };
+
+  const handleSubmit = (values) => {
+    console.log("Formulario enviado:", values);
   };
 
   const handleInputChange = (e) => {
@@ -49,149 +81,88 @@ const AppointmentForm = () => {
   };
 
   return (
-    <section className="h-screen flex flex-col justify-center items-center bg-white overflow-hidden">
-      <form className="bg-white rounded-3xl shadow-2xl p-8 max-w-lg w-full flex flex-col gap-4 overflow-y-auto mb-5">
-        {/* Logo */}
-        <div className="self-center  mt-[15px]">
-          <Image 
-            src={dpelosn} 
-            alt="Logo D'Pelos" 
-            className="w-auto h-auto" 
-          />
-        </div>
 
-        {/* Servicio */}
-        <div  className="mt-[20px]">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Servicio
-          </label>
-          <Select
-            options={services}
-            onChange={(e) => setFormData((prev) => ({ ...prev, servicio: e?.value ?? "" }))}
-            isClearable
-            styles={customStyles}
-            placeholder="Elija un servicio"
-          />
-        </div>
+    <section className="form-container">
+      <Formik
+        initialValues={initialValues}
+        validationSchema={validationSchema}
+        onSubmit={handleSubmit}
+      >
+        {({ setFieldValue }) => (
+          <Form className="appointment-form">
+            <img src={dpelosn} alt="Logo D'Pelos" className="logo" />
+            <p className="subtitulo">Reserva tu cita en nuestra peluqueria ahora!</p>
+            <div className="form-row">
+              <div className="form-col">
+                <FormInput
+                  label="Nombre"
+                  name="nombre"
+                  placeholder="Digite su nombre"
+                />
+                <FormInput
+                  label="Apellido"
+                  name="apellido"
+                  placeholder="Digite su apellido"
+                />
+                <FormInput
+                  label="Email"
+                  name="email"
+                  type="email"
+                  placeholder="Digite su correo electrónico"
+                />
+                <FormInput
+                  label="Teléfono"
+                  name="telefono"
+                  type="tel"
+                  placeholder="Digite su teléfono"
+                />
+              </div>
+              <div className="form-col">
+                <FormSelect
+                  label="Servicio"
+                  name="servicio"
+                  options={servicesOptions}
+                  placeholder="Elija un servicio"
+                />
+                <FormSelect
+                  label="Especialista"
+                  name="especialista"
+                  options={specialistsOptions}
+                  placeholder="Elija un especialista"
+                />
+                <FormInput
+                  label="Fecha"
+                  name="fecha"
+                  type="date"
+                  placeholder="Seleccione una fecha"
+                />
+                <div className="horas">
+                  {["08:00", "09:30", "11:00", "12:30", "14:00", "15:30", "17:00", "19:30", "21:00", "22:30"].map(
+                    (hour) => (
+                      <button
+                        key={hour}
+                        type="button"
+                        className={`hour-button ${
+                          selectedHour === hour ? "selected" : ""
+                        }`}
+                        onClick={() => handleHourClick(hour, setFieldValue)}
+                      >
+                        {hour}
+                      </button>
+                    )
+                  )}
+                </div>
+              </div>
+            </div>
+            <div className="button-container">
+              <button type="submit" className="agendar">
+                Agendar cita
+              </button>
+            </div>
+          </Form>
+        )}
+      </Formik>
 
-        {/* Especialista */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Especialista
-          </label>
-          <Select
-            options={specialists}
-            onChange={(e) => setFormData((prev) => ({ ...prev, especialista: e?.value ?? "" }))}
-            isClearable
-            styles={customStyles}
-            placeholder="Elija un especialista"
-          />
-        </div>
-
-        {/* Fecha */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Fecha
-          </label>
-          <input
-            type="date"
-            name="fecha"
-            value={formData.fecha}
-            onChange={handleInputChange}
-            placeholder="dd/mm/aaaa"
-            required
-            className="w-full rounded-md border border-gray-300 px-3 py-2 text-gray-500 placeholder-gray-400 focus:text-black focus:outline-none focus:ring-2 focus:ring-black"
-          />
-        </div>
-
-        {/* Selección de hora */}
-        <div className="flex flex-wrap gap-2 justify-center mt-5">
-          {["08:00", "09:30", "11:00", "12:30", "14:00", "15:30", "17:00", "18:30", "20:00"].map((hour) => (
-            <Button
-              key={hour}
-              variant={selectedHour === hour ? "default" : "outline"}
-              size="sm"
-              onClick={() => handleHourClick(hour)}
-              className={selectedHour === hour ? "bg-yellow-500 text-black border-yellow-500" : ""}
-            >
-              {hour}
-            </Button>
-          ))}
-        </div>
-
-        {/* Nombre */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Nombre
-          </label>
-          <input
-            type="text"
-            name="nombre"
-            value={formData.nombre}
-            onChange={handleInputChange}
-            placeholder="Digite su nombre"
-            required
-            className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
-          />
-        </div>
-
-        {/* Apellido */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Apellido
-          </label>
-          <input
-            type="text"
-            name="apellido"
-            value={formData.apellido}
-            onChange={handleInputChange}
-            placeholder="Digite su apellido"
-            required
-            className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
-          />
-        </div>
-
-        {/* Email */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Email
-          </label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleInputChange}
-            placeholder="Digite su correo electrónico"
-            required
-            className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
-          />
-        </div>
-
-        {/* Teléfono */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Teléfono
-          </label>
-          <input
-            type="tel"
-            name="telefono"
-            value={formData.telefono}
-            onChange={handleInputChange}
-            placeholder="Digite su teléfono"
-            required
-            className="w-full rounded-md border border-gray-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-black"
-          />
-        </div>
-
-        {/* Botón de agendar */}
-        <Button
-          type="submit"
-          size="lg"
-          className="bg-yellow-500 hover:bg-yellow-600 w-full mt-[20px]"
-        >
-          Agendar cita
-        </Button>
-      </form>
     </section>
   );
 };

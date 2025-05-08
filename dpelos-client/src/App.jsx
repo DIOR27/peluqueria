@@ -9,34 +9,44 @@ import Clients from "./pages/dashboard/Clients";
 import Services from "./pages/dashboard/Services";
 import Specialists from "./pages/dashboard/Specialists";
 import Schedule from "./pages/schedule";
-import './App.css';
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import Profile from "./pages/dashboard/Profile";
+import "./App.css";
 
 const router = createBrowserRouter([
   {
-    path: '/',
-    element: <Home />
+    path: "/",
+    element: <Home />,
   },
   {
-    path: '/panel',
+    path: "/panel",
     Component: Page,
     children: [
       { index: true, Component: Appointments },
-      { path: 'configuraciones', Component: Settings },
-      { path: 'clientes', Component: Clients },
-      { path: 'servicios', Component: Services },
-      { path: 'especialistas', Component: Specialists },
-    ]
+      { path: "configuraciones", Component: Settings },
+      { path: "clientes", Component: Clients },
+      { path: "servicios", Component: Services },
+      { path: "especialistas", Component: Specialists },
+      { path: "perfil", Component: Profile },
+    ],
   },
   {
-    path: '/agendar', 
-    element: <Schedule />
-  }
+    path: "/agendar",
+    element: <Schedule />,
+  },
+  {
+    path: "/ingresar",
+    element: <Login />,
+  },
+  {
+    path: "/registro",
+    element: <Signup />,
+  },
 ]);
 
 function App() {
-  return (
-    <RouterProvider router={router} />
-  );
+  return <RouterProvider router={router} />;
 }
 
 export default App;
