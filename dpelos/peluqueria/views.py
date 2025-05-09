@@ -8,7 +8,7 @@ from .models import Usuario, Especialista, Servicio, EspecialistaServicio, Reser
 from .serializers import UsuarioSerializer, GroupSerializer, EspecialistaSerializer, ServicioSerializer, EspecialistaServicioSerializer, ReservaSerializer, NotificacionSerializer, InformacionNegocioSerializer, HorarioTrabajoSerializer
 from django.contrib.auth.models import Group
 from django.utils.crypto import get_random_string
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.conf import settings
@@ -370,6 +370,80 @@ def obtener_reserva_por_codigo(request, codigo_reserva):
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Reserva.DoesNotExist:
         return Response({'error': 'Reserva no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+    
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def horarios_disponibles(request):
+    fecha_str = request.data.get("fecha")
+    especialista_id = request.data.get("especialista_id")
+    servicio_id = request.data.get("servicio_id")
+
+    if not (fecha_str and especialista_id and servicio_id):
+        return Response({"error": "Todos los campos son requeridos."}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        fecha = datetime.strptime(fecha_str, "%Y-%m-%d").date()
+    except ValueError:
+        return Response({"error": "Fecha inválida, formato requerido: YYYY-MM-DD"}, status=status.HTTP_400_BAD_REQUEST)
+
+    # Validar fecha en el pasado
+    if fecha < date.today():
+        return Response({"error": "No se puede consultar horarios para una fecha pasada."}, status=status.HTTP_400_BAD_REQUEST)
+
+    try:
+        servicio = Servicio.objects.get(id=servicio_id)
+    except Servicio.DoesNotExist:
+        return Response({"error": "Servicio no encontrado."}, status=status.HTTP_404_NOT_FOUND)
+
+    DIAS_SEMANA = {
+        0: "LU",
+        1: "MA",
+        2: "MI",
+        3: "JU",
+        4: "VI",
+        5: "SA",
+        6: "DO",
+    }
+    
+    duracion = servicio.duracion_estimada
+    dia_semana = DIAS_SEMANA[fecha.weekday()]
+
+    try:
+        horario = HorarioTrabajo.objects.get(dia=dia_semana, activo=True)
+    except HorarioTrabajo.DoesNotExist:
+        return Response({"error": "No hay horario de trabajo configurado para este día."}, status=status.HTTP_404_NOT_FOUND)
+
+    hora_inicio = datetime.combine(fecha, horario.hora_inicio)
+    hora_fin = datetime.combine(fecha, horario.hora_fin)
+
+    reservas = Reserva.objects.filter(
+        especialista_id=especialista_id,
+        fecha=fecha
+    )
+
+    horas_ocupadas = []
+    for reserva in reservas:
+        duracion_reserva = reserva.servicio_id.duracion_estimada
+        hora_inicio_reserva = datetime.combine(fecha, reserva.hora)
+        hora_fin_reserva = hora_inicio_reserva + timedelta(minutes=duracion_reserva)
+        horas_ocupadas.append((hora_inicio_reserva, hora_fin_reserva))
+
+    horarios_disponibles = []
+    hora_actual = hora_inicio
+    while hora_actual + timedelta(minutes=duracion) <= hora_fin:
+        fin_actual = hora_actual + timedelta(minutes=duracion)
+
+        conflicto = any(
+            inicio < fin_actual and hora_actual < fin
+            for inicio, fin in horas_ocupadas
+        )
+
+        if not conflicto:
+            horarios_disponibles.append(hora_actual.time().strftime("%H:%M:%S"))
+
+        hora_actual += timedelta(minutes=duracion)
+
+    return Response(horarios_disponibles, status=status.HTTP_200_OK)
 
 
 class NotificacionViewSet(ModelViewSet):
