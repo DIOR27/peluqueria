@@ -1,24 +1,21 @@
 import { Button } from "../../ui/Button";
 import { Formik, Form, Field } from "formik";
 import FormInput from "../../ui/FormInput";
-import FormSpecialistsCheckbox from "./FormSpecialistsCheckbox";
 import FormStatusToggle from "../../ui/FormStatusToggle";
 import * as Yup from "yup";
+import useServiceStore from "../../../stores/serviceStore";
 
 export default function EditService({
   selectedService,
-  specialists,
   handleClose,
 }) {
-  console.log(selectedService);
+  const editService = useServiceStore(state => state.editService);
   const initialValues = {
-    name: selectedService.name || "",
-    description: selectedService.description || "",
-    duration: selectedService.duration || "",
-    price: selectedService.price || "",
-    category: selectedService.category || "",
-    isActive: selectedService.isActive ?? true,
-    specialists: selectedService.specialists || [],
+    name: selectedService.nombre || "",
+    description: selectedService.descripcion || "",
+    duration: selectedService.duracion_estimada || "",
+    price: selectedService.precio || "",
+    isActive: selectedService.activo ?? true,
   };
 
   const validationSchema = Yup.object({
@@ -30,17 +27,15 @@ export default function EditService({
     price: Yup.number()
       .required("El precio es requerido")
       .positive("El precio debe ser positivo"),
-    category: Yup.string().required("La categoría es requerida"),
     isActive: Yup.boolean().required("El estado es requerido"),
-    specialists: Yup.array()
-      .of(Yup.string())
-      .min(1, "Debes seleccionar al menos un especialista")
-      .required("Los especialistas son requeridos"),
   });
 
-  const handleSubmit = (values, { setSubmitting }) => {
-    console.log("Submitting form with values:", values);
-    // Aquí irá la lógica para actualizar el servicio
+  const handleSubmit = async (values, { setSubmitting }) => {
+    const dataToSubmit = {
+      id: selectedService.id,
+      ...values,
+    };
+    await editService(dataToSubmit);
     setSubmitting(false);
     handleClose();
   };
@@ -53,8 +48,16 @@ export default function EditService({
         onSubmit={handleSubmit}
         enableReinitialize
       >
-        {({ errors, touched, isSubmitting }) => (
-          <Form>
+        {({ handleSubmit, isSubmitting, dirty }) => (
+          <Form
+            onSubmit={(e) => {
+              console.log("Form submitted", e);
+              e.preventDefault();
+              if (dirty) {
+                handleSubmit(e);
+              }
+            }}
+          >
             <FormInput
               label="Nombre"
               name="name"
@@ -81,26 +84,6 @@ export default function EditService({
                 placeholder="Precio del servicio"
               />
             </div>
-            <FormInput
-              label="Categoría"
-              name="category"
-              placeholder="Categoría del servicio"
-            />
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Especialistas
-              </label>
-              <Field
-                name="specialists"
-                component={FormSpecialistsCheckbox}
-                specialists={specialists}
-              />
-              {touched.specialists && errors.specialists && (
-                <div className="text-red-500 text-xs mt-1">
-                  {errors.specialists}
-                </div>
-              )}
-            </div>
             <div className="mb-4">
               <Field name="isActive" component={FormStatusToggle} />
             </div>
@@ -108,7 +91,7 @@ export default function EditService({
               <Button type="button" variant="outline" onClick={handleClose}>
                 Cancelar
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting || !dirty}>
                 {isSubmitting ? "Guardando..." : "Guardar"}
               </Button>
             </div>

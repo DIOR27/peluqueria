@@ -1,19 +1,19 @@
 import { Button } from "../../ui/Button";
 import { Formik, Form, Field } from "formik";
 import FormInput from "../../ui/FormInput";
-import FormSpecialistsCheckbox from "./FormSpecialistsCheckbox";
 import FormStatusToggle from "../../ui/FormStatusToggle";
 import * as Yup from "yup";
+import useServiceStore from "../../../stores/serviceStore";
 
-export default function NewService({ specialists, handleClose }) {
+export default function NewService({ handleClose }) {
+  const { createService } = useServiceStore();
+
   const initialValues = {
     name: "",
     description: "",
     duration: "",
     price: "",
-    category: "",
     isActive: true,
-    specialists: [],
   };
 
   const validationSchema = Yup.object({
@@ -25,17 +25,11 @@ export default function NewService({ specialists, handleClose }) {
     price: Yup.number()
       .required("El precio es requerido")
       .positive("El precio debe ser positivo"),
-    category: Yup.string().required("La categoría es requerida"),
     isActive: Yup.boolean().required("El estado es requerido"),
-    specialists: Yup.array()
-      .of(Yup.string())
-      .min(1, "Debes seleccionar al menos un especialista")
-      .required("Los especialistas son requeridos"),
   });
 
   const handleSubmit = (values, { setSubmitting }) => {
-    console.log("Submitting form with values:", values);
-    // Aquí irá la lógica para crear el servicio
+    createService(values);
     setSubmitting(false);
     handleClose();
   };
@@ -47,7 +41,7 @@ export default function NewService({ specialists, handleClose }) {
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
       >
-        {({ errors, touched, isSubmitting }) => (
+        {({ isSubmitting }) => (
           <Form>
             <FormInput
               label="Nombre"
@@ -74,26 +68,6 @@ export default function NewService({ specialists, handleClose }) {
                 type="number"
                 placeholder="Precio del servicio"
               />
-            </div>
-            <FormInput
-              label="Categoría"
-              name="category"
-              placeholder="Categoría del servicio"
-            />
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Especialistas
-              </label>
-              <Field
-                name="specialists"
-                component={FormSpecialistsCheckbox}
-                specialists={specialists}
-              />
-              {touched.specialists && errors.specialists && (
-                <div className="text-red-500 text-xs mt-1">
-                  {errors.specialists}
-                </div>
-              )}
             </div>
             <div className="mb-4">
               <Field name="isActive" component={FormStatusToggle} />
