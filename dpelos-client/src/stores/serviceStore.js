@@ -3,7 +3,7 @@ import { create } from 'zustand';
 import api from '../../api';
 import { toast } from 'react-toastify';
 
-const useServiceStore = create((set, get) => ({
+const useServiceStore = create((set) => ({
   services: [],
   createService: async (newService) => {
     try {
