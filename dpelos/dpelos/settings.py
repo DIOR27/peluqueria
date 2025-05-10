@@ -124,7 +124,7 @@ AUTH_USER_MODEL = 'peluqueria.Usuario'
 
 LANGUAGE_CODE = 'es-es'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Guayaqui'
 
 USE_I18N = True
 

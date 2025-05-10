@@ -54,6 +54,29 @@ class EspecialistaSerializer(serializers.ModelSerializer):
                 continue
 
         return especialista
+    
+    def update(self, instance, validated_data):
+        # Si no se envía 'servicios', asumimos que quiere eliminar todos
+        servicios_ids = validated_data.pop('servicios', [])
+
+        # Actualiza los campos normales
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        # Eliminar TODAS las relaciones existentes
+        EspecialistaServicio.objects.filter(especialista_id=instance).delete()
+
+        # Crear nuevas relaciones solo si hay servicios
+        for servicio_id in servicios_ids:
+            try:
+                servicio = Servicio.objects.get(id=servicio_id)
+                EspecialistaServicio.objects.create(especialista_id=instance, servicio_id=servicio)
+            except Servicio.DoesNotExist:
+                continue
+
+        return instance
+
 
     def get_servicios_asociados(self, obj):
         servicios = Servicio.objects.filter(
