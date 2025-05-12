@@ -92,8 +92,7 @@ DATABASES = {
         'NAME': 'dpelos',
         'USER': 'root',
         'PASSWORD': 'root',
-        'HOST': '172.19.0.2',
-        #'HOST': 'localhost',
+        'HOST': 'localhost',
         'PORT': '3306',
     }
 }
@@ -124,7 +123,7 @@ AUTH_USER_MODEL = 'peluqueria.Usuario'
 
 LANGUAGE_CODE = 'es-es'
 
-TIME_ZONE = 'America/Guayaqui'
+TIME_ZONE = 'America/Guayaquil'
 
 USE_I18N = True
 
