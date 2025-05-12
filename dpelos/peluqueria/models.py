@@ -41,7 +41,7 @@ class EspecialistaServicio(models.Model):
     servicio_id = models.ForeignKey(Servicio, on_delete=models.CASCADE)
 
 class Reserva(models.Model):
-    usuario_id = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    usuario_id = models.ForeignKey(Usuario, on_delete=models.CASCADE, null=True, blank=True)
     especialista_id = models.ForeignKey(Especialista, on_delete=models.CASCADE)
     servicio_id = models.ForeignKey(Servicio, on_delete=models.CASCADE)
     fecha = models.DateField()
