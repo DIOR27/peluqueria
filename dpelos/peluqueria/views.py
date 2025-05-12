@@ -327,14 +327,18 @@ class ReservaViewSet(ModelViewSet):
         
         # Enviar correo al usuario
 
-        mailto = reserva.usuario_id.email if usuario_id else self.request.query_params.get('clientEmail')
+        mailto = (
+            reserva.usuario_id.email
+            if reserva.usuario_id and reserva.usuario_id.email
+            else request.data.get('clientEmail')
+        )
 
         try:
             subject = f'Confirmación de Reserva N° {reserva.codigo_reserva}'
             from_email = settings.DEFAULT_FROM_EMAIL
             to_email = [mailto]
             context = {
-                'usuario': reserva.usuario_id.__str__ if reserva.usuario_id else self.request.query_params.get('clientName'),
+                'usuario': reserva.usuario_id.__str__ if reserva.usuario_id else request.data.get('clientName'),
                 'especialista': reserva.especialista_id.__str__,
                 'servicio': reserva.servicio_id.nombre,
                 'fecha': reserva.fecha,
