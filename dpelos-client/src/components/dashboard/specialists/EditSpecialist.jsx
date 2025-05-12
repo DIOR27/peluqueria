@@ -4,31 +4,29 @@ import FormInput from "../../ui/FormInput";
 import FormServicesCheckbox from "./FormServicesCheckbox";
 import FormStatusToggle from "../../ui/FormStatusToggle";
 import * as Yup from "yup";
+import useSpecialistStore from "../../../stores/specialistStore";
+import useServiceStore from "../../../stores/serviceStore";
 
 export default function EditSpecialist({
   selectedSpecialist,
   handleClose,
-  services,
 }) {
+  const { editSpecialist } = useSpecialistStore();
+  const { services } = useServiceStore();
+
   const initialValues = {
-    name: selectedSpecialist.name || "",
-    position: selectedSpecialist.position || "",
-    email: selectedSpecialist.email || "",
-    phone: selectedSpecialist.phone || "",
-    bio: selectedSpecialist.bio || "",
-    isActive: selectedSpecialist.isActive ?? true,
-    services: selectedSpecialist.services || [],
+    name: selectedSpecialist.nombre || "",
+    lastname: selectedSpecialist.apellido || "",
+    position: selectedSpecialist.especialidad || "",
+    bio: selectedSpecialist.descripcion || "",
+    isActive: selectedSpecialist?.activo,
+    services: selectedSpecialist?.servicios_asociados?.map(service => service.id) || [],
   };
 
   const validationSchema = Yup.object({
     name: Yup.string().required("El nombre es requerido"),
+    lastname: Yup.string().required("El apellido es requerido"),
     position: Yup.string().required("El cargo es requerido"),
-    email: Yup.string()
-      .email("Formato de email inválido")
-      .required("El email es requerido"),
-    phone: Yup.string()
-      .required("El teléfono es requerido")
-      .matches(/^\d+$/, "Formato de teléfono inválido"),
     bio: Yup.string().required("La biografía es requerida"),
     isActive: Yup.boolean().required("El estado es requerido"),
     services: Yup.array()
@@ -37,9 +35,12 @@ export default function EditSpecialist({
       .required("Los servicios son requeridos"),
   });
 
-  const handleSubmit = (values, { setSubmitting }) => {
-    console.log("Submitting form with values:", values);
-    // Aquí irá la lógica para actualizar el especialista
+  const handleSubmit = async (values, { setSubmitting }) => {
+    const dataToSubmit = {
+      id: selectedSpecialist.id,
+      ...values,
+    };
+    await editSpecialist(dataToSubmit);
     setSubmitting(false);
     handleClose();
   };
@@ -52,13 +53,20 @@ export default function EditSpecialist({
         onSubmit={handleSubmit}
         enableReinitialize
       >
-        {({ errors, touched, isSubmitting }) => (
+        {({ errors, touched, isSubmitting, dirty }) => (
           <Form>
-            <FormInput
-              label="Nombre"
-              name="name"
-              placeholder="Nombre del especialista"
-            />
+            <div className="grid grid-cols-2 gap-4">
+              <FormInput
+                label="Nombre"
+                name="name"
+                placeholder="Nombre del especialista"
+              />
+              <FormInput
+                label="Apellido"
+                name="lastname"
+                placeholder="Apellido del especialista"
+              />
+            </div>
             <FormInput
               label="Cargo"
               name="position"
@@ -71,18 +79,6 @@ export default function EditSpecialist({
               as="textarea"
               rows={3}
             />
-            <div className="grid grid-cols-2 gap-4">
-              <FormInput
-                label="Email"
-                name="email"
-                placeholder="Email del especialista"
-              />
-              <FormInput
-                label="Teléfono"
-                name="phone"
-                placeholder="Teléfono del especialista"
-              />
-            </div>
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Servicios
@@ -105,7 +101,7 @@ export default function EditSpecialist({
               <Button type="button" variant="outline" onClick={handleClose}>
                 Cancelar
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button type="submit" disabled={isSubmitting || !dirty}>
                 {isSubmitting ? "Guardando..." : "Guardar"}
               </Button>
             </div>

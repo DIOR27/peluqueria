@@ -1,9 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "../../components/ui/Button";
 import { Sheet } from "../../components/ui/Sheet";
 import { Search } from "lucide-react";
 import useServiceStore from "../../stores/serviceStore";
-import useSpecialistStore from "../../stores/specialistStore";
 import ServiceCard from "../../components/dashboard/services/ServiceCard";
 import EditService from "../../components/dashboard/services/EditService";
 import ServiceDetails from "../../components/dashboard/services/ServiceDetails";
@@ -11,18 +10,21 @@ import NewService from "../../components/dashboard/services/NewService";
 import Input from "../../components/ui/Input";
 
 export default function Services() {
-  const services = useServiceStore((state) => state.services);
-  const specialists = useSpecialistStore((state) => state.specialists);
+  const { services, getServices } = useServiceStore();
   const [searchQuery, setSearchQuery] = useState("");
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [isNewService, setIsNewService] = useState(false);
 
+  useEffect(() => {
+    getServices();
+  }, [getServices]);
+
   const filteredServices = services.filter(
     (service) =>
-      service.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      service.description.toLowerCase().includes(searchQuery.toLowerCase())
+      service.nombre.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      service.descripcion.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleServiceClick = (service, isEdit) => {
@@ -58,30 +60,6 @@ export default function Services() {
     handleCloseSheet();
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (isNewService) {
-      // Aquí irá la lógica para crear un nuevo servicio
-      console.log("Crear nuevo servicio:", selectedService);
-    } else {
-      // Aquí irá la lógica para actualizar el servicio
-      console.log("Actualizar servicio:", selectedService);
-    }
-    setIsSheetOpen(false);
-  };
-
-  const handleSpecialistToggle = (specialistId) => {
-    const currentSpecialists = selectedService.specialists || [];
-    const newSpecialists = currentSpecialists.includes(specialistId)
-      ? currentSpecialists.filter((id) => id !== specialistId)
-      : [...currentSpecialists, specialistId];
-
-    setSelectedService({
-      ...selectedService,
-      specialists: newSpecialists,
-    });
-  };
-
   const editing = selectedService && isEditing;
   const viewing = selectedService && !isEditing && !isNewService;
   const newService = isNewService && !isEditing;
@@ -110,7 +88,6 @@ export default function Services() {
           <ServiceCard
             key={service.id}
             service={service}
-            specialists={specialists}
             handleServiceClick={handleServiceClick}
           />
         ))}
@@ -123,18 +100,13 @@ export default function Services() {
           newService
             ? "Nuevo Servicio"
             : editing
-            ? "Editar Servicio"
-            : selectedService?.name
+              ? "Editar Servicio"
+              : selectedService?.nombre
         }
       >
         {editing ? (
           <EditService
-            handleSubmit={handleSubmit}
             selectedService={selectedService}
-            setSelectedService={setSelectedService}
-            specialists={specialists}
-            handleSpecialistToggle={handleSpecialistToggle}
-            setIsSheetOpen={setIsSheetOpen}
             handleClose={handleCloseSheet}
           />
         ) : null}
@@ -142,7 +114,6 @@ export default function Services() {
         {viewing ? (
           <ServiceDetails
             selectedService={selectedService}
-            specialists={specialists}
             handleDelete={handleDelete}
             handleEdit={handleEdit}
           />
@@ -150,7 +121,6 @@ export default function Services() {
 
         {newService ? (
           <NewService
-            specialists={specialists}
             handleClose={handleCloseSheet}
           />
         ) : null}

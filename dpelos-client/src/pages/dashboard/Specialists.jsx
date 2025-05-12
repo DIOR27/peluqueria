@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "../../components/ui/Button";
 import { Sheet } from "../../components/ui/Sheet";
 import { Search } from "lucide-react";
@@ -17,17 +17,23 @@ export default function Specialists() {
   const [isEditing, setIsEditing] = useState(false);
   const [isNewSpecialist, setIsNewSpecialist] = useState(false);
 
-  const { specialists } = useSpecialistStore();
-  const { services } = useServiceStore();
+  const { specialists, getSpecialists } = useSpecialistStore();
+  const { getServices } = useServiceStore();
+
+  useEffect(() => {
+    getSpecialists();
+    getServices();
+  }, [getServices, getSpecialists]);
+
   const filteredSpecialists = specialists.filter(
     (specialist) =>
-      specialist.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      specialist.position.toLowerCase().includes(searchQuery.toLowerCase())
+      specialist.nombre.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      specialist.especialidad.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleSpecialistClick = (specialist, isEdit) => {
-    setIsEditing(isEdit);
     setSelectedSpecialist(specialist);
+    setIsEditing(isEdit);
     setIsSheetOpen(true);
   };
 
@@ -53,22 +59,6 @@ export default function Specialists() {
     // Aquí irá la lógica para eliminar el especialista
     console.log("Eliminar especialista:", selectedSpecialist.id);
     handleCloseSheet();
-  };
-
-  const handleServiceToggle = (serviceId) => {
-    const currentServices = selectedSpecialist.services || [];
-    const newServices = currentServices.includes(serviceId)
-      ? currentServices.filter((id) => id !== serviceId)
-      : [...currentServices, serviceId];
-
-    setSelectedSpecialist({
-      ...selectedSpecialist,
-      services: newServices,
-    });
-  };
-
-  const handleToggleStatus = (specialist) => {
-    console.log("Toggle status for specialist:", specialist.id);
   };
 
   const editing = selectedSpecialist && isEditing;
@@ -99,9 +89,7 @@ export default function Specialists() {
           <SpecialistCard
             key={specialist.id}
             specialist={specialist}
-            services={services}
             handleSpecialistClick={handleSpecialistClick}
-            handleToggleStatus={handleToggleStatus}
           />
         ))}
       </div>
@@ -118,10 +106,6 @@ export default function Specialists() {
         {editing ? (
           <EditSpecialist
             selectedSpecialist={selectedSpecialist}
-            setSelectedSpecialist={setSelectedSpecialist}
-            setIsSheetOpen={setIsSheetOpen}
-            handleServiceToggle={handleServiceToggle}
-            services={services}
             handleClose={handleCloseSheet}
           />
         ) : null}
@@ -129,14 +113,13 @@ export default function Specialists() {
         {viewing ? (
           <SpecialistDetails
             selectedSpecialist={selectedSpecialist}
-            services={services}
             handleDelete={handleDelete}
             handleEdit={handleEdit}
           />
         ) : null}
 
         {newSpecialist ? (
-          <NewSpecialist services={services} handleClose={handleCloseSheet} />
+          <NewSpecialist handleClose={handleCloseSheet} />
         ) : null}
       </Sheet>
     </div>

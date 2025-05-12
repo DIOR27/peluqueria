@@ -13,6 +13,7 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Profile from "./pages/dashboard/Profile";
 import "./App.css";
+import ProtectedRoute from "./components/dashboard/ProtectedRoute";
 
 const router = createBrowserRouter([
   {
@@ -21,7 +22,12 @@ const router = createBrowserRouter([
   },
   {
     path: "/panel",
-    Component: Page,
+    // Component: Page,
+    element: (
+      <ProtectedRoute>
+        <Page />
+      </ProtectedRoute>
+    ),
     children: [
       { index: true, Component: Appointments },
       { path: "configuraciones", Component: Settings },
@@ -38,10 +44,6 @@ const router = createBrowserRouter([
   {
     path: "/ingresar",
     element: <Login />,
-  },
-  {
-    path: "/registro",
-    element: <Signup />,
   },
 ]);
 

@@ -6,32 +6,31 @@ import {
   MenuItems,
   MenuSeparator,
 } from "@headlessui/react";
+import useServiceStore from "../../../stores/serviceStore";
 
-export default function ServiceCard({
-  service,
-  handleServiceClick,
-  specialists,
-  handleToggleStatus,
-}) {
+export default function ServiceCard({ service, handleServiceClick }) {
+  const toggleServiceStatus = useServiceStore(state => state.toggleServiceStatus);
+
+  const handleToggleStatus = async () => {
+    await toggleServiceStatus({ id: service.id, status: service.activo });
+  };
+
   return (
     <div
-      key={service.id}
-      className={`bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition-shadow ${
-        !service.isActive ? "opacity-60" : ""
-      }`}
+      className={`bg-white rounded-lg shadow overflow-hidden hover:shadow-lg transition-shadow ${!service.activo ? "opacity-60" : ""
+        }`}
     >
       <div className="p-6">
         <div className="flex justify-between items-start">
           <div>
             <h3 className="text-lg font-semibold text-gray-900">
-              {service.name}
+              {service.nombre}
             </h3>
             <span
-              className={`text-xs font-medium ${
-                service.isActive ? "text-green-600" : "text-gray-500"
-              }`}
+              className={`text-xs font-medium ${service.activo ? "text-green-600" : "text-gray-500"
+                }`}
             >
-              {service.isActive ? "Activo" : "Inactivo"}
+              {service.activo ? "Activo" : "Inactivo"}
             </span>
           </div>
           <div className="relative">
@@ -62,46 +61,26 @@ export default function ServiceCard({
                 <MenuSeparator className="h-px bg-gray-200" />
                 <MenuItem className="w-[180px] px-4 py-2 cursor-pointer data-[focus]:bg-gray-100">
                   <button
-                    className={`text-left font-medium ${
-                      service.isActive ? "text-red-500" : "text-green-500"
-                    } `}
-                    onClick={() => handleToggleStatus(service)}
+                    className={`text-left font-medium ${service.activo ? "text-red-500" : "text-green-500"
+                      } `}
+                    onClick={handleToggleStatus}
                   >
-                    {service.isActive ? "Desactivar" : "Activar"}
+                    {service.activo ? "Desactivar" : "Activar"}
                   </button>
                 </MenuItem>
               </MenuItems>
             </Menu>
           </div>
         </div>
-        <p className="mt-2 text-sm text-gray-500">{service.description}</p>
+        <p className="mt-2 text-sm text-gray-500">{service.descripcion}</p>
         <div className="mt-4 flex items-center gap-4 text-sm text-gray-600">
           <div className="flex items-center gap-1">
             <Clock className="w-4 h-4" />
-            <span>{service.duration} min.</span>
+            <span>{service.duracion_estimada} min.</span>
           </div>
           <div className="flex items-center gap-1">
             <DollarSign className="w-4 h-4" />
-            <span>{service.price} </span>
-          </div>
-        </div>
-        <div className="mt-4">
-          <h4 className="text-sm font-medium text-gray-700 mb-2">
-            Especialistas:
-          </h4>
-          <div className="flex flex-wrap gap-2">
-            {service.specialists.map((specialistId) => {
-              const specialist = specialists.find((s) => s.id === specialistId);
-              return specialist ? (
-                <span
-                  key={specialistId}
-                  className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
-                >
-                  <User className="w-3 h-3 mr-1" />
-                  {specialist.name}
-                </span>
-              ) : null;
-            })}
+            <span>{service.precio} </span>
           </div>
         </div>
       </div>

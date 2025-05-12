@@ -10,6 +10,7 @@ import {
   UserSquare,
 } from "lucide-react";
 import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
+import useAuthStore from "../../stores/authStore";
 
 const navigation = [
   { name: "Citas", href: "/panel", icon: Calendar },
@@ -22,19 +23,9 @@ const navigation = [
 
 export default function Sidebar() {
   const location = useLocation();
+  const { user, logout } = useAuthStore();
 
-  const user = {
-    name: "Juan Pérez",
-    email: "juan@dpelos.com",
-  };
-
-  const getInitials = (name) => {
-    return name
-      .split(" ")
-      .map((word) => word[0])
-      .join("")
-      .toUpperCase();
-  };
+  const userInitials = `${user?.first_name?.[0] || ''}${user?.last_name?.[0] || ''}`;
 
   return (
     <div className="flex h-full w-64 flex-col border-r border-gray-200 bg-white">
@@ -66,13 +57,13 @@ export default function Sidebar() {
       <div className="relative border-b border-gray-200 p-4">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gold-500 text-white font-medium">
-            {getInitials(user.name)}
+            {userInitials}
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-gray-900 truncate">
-              {user.name}
+              {user?.first_name} {user?.last_name}
             </p>
-            <p className="text-xs text-gray-500 truncate">{user.email}</p>
+            <p className="text-xs text-gray-500 truncate">{user?.email}</p>
           </div>
           <Menu>
             <MenuButton className="p-1 hover:bg-gray-100 rounded-full focus:outline-none">
@@ -83,7 +74,10 @@ export default function Sidebar() {
               className="bg-white shadow-lg rounded-md flex flex-col gap-2 border border-gray-200 text-sm text-gray-700 focus:outline-none"
             >
               <MenuItem className="w-[180px] px-4 py-2 cursor-pointer">
-                <button className=" data-[focus]:bg-gray-100 flex items-center gap-2">
+                <button
+                  onClick={logout}
+                  className=" data-[focus]:bg-gray-100 flex items-center gap-2"
+                >
                   <LogOut className="h-4 w-4 text-red-500" />
                   Cerrar sesión
                 </button>

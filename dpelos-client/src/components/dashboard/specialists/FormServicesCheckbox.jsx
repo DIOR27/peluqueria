@@ -25,7 +25,7 @@ const FormServicesCheckbox = ({ services }) => {
           >
             <CheckIcon className="size-3.5 text-white" />
           </Checkbox>
-          <Label className="text-sm text-gray-700">{service.name}</Label>
+          <Label className="text-sm text-gray-700">{service.nombre}</Label>
         </HeadlessField>
       ))}
     </div>

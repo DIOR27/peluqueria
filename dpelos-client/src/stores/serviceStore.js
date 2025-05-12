@@ -1,60 +1,82 @@
 // Para gestionar los servicios que ofrece la peluqueria
 import { create } from 'zustand';
-const mockServices = [
-  {
-    id: 1,
-    name: "Corte de Cabello",
-    description: "Cortes modernos y clásicos adaptados a tu estilo y tipo de cabello.",
-    duration: 30,
-    price: 15,
-    category: "Cortes",
-    isActive: false,
-    specialists: [1, 2, 4] // IDs de los especialistas que pueden ofrecer este servicio
-  },
-  {
-    id: 2,
-    name: "Afeitado Tradicional",
-    description: "Afeitado clásico con navaja y toallas calientes para una experiencia premium.",
-    duration: 45,
-    price: 12,
-    category: "Afeitado",
-    isActive: true,
-    specialists: [1, 2]
-  },
-  {
-    id: 3,
-    name: "Perfilado de Barba",
-    description: "Dale forma y estilo a tu barba con nuestro servicio de perfilado profesional.",
-    duration: 20,
-    price: 10,
-    category: "Barba",
-    isActive: false,
-    specialists: [1, 2, 4]
-  },
-  {
-    id: 4,
-    name: "Coloración",
-    description: "Servicios de coloración y tratamientos para un look renovado.",
-    duration: 60,
-    price: 25,
-    category: "Color",
-    isActive: true,
-    specialists: [2, 3]
-  },
-  {
-    id: 5,
-    name: "Tratamiento Capilar",
-    description: "Tratamientos especializados para el cuidado y salud de tu cabello.",
-    duration: 45,
-    price: 20,
-    category: "Tratamientos",
-    isActive: true,
-    specialists: [3]
-  }
-];
+import api from '../../api';
+import { toast } from 'react-toastify';
 
 const useServiceStore = create((set) => ({
-  services: mockServices,
+  services: [],
+  createService: async (newService) => {
+    try {
+      const {
+        name: nombre,
+        description: descripcion,
+        price: precio,
+        duration: duracion_estimada,
+        isActive: activo,
+      } = newService;
+      const response = await api.post(
+        '/servicios/',
+        { nombre, descripcion, precio, duracion_estimada, activo },
+      );
+      const createdService = response.data;
+      toast.success("Servicio creado exitosamente");
+      set((state) => ({
+        services: [...state.services, createdService],
+      }));
+    } catch (error) {
+      toast.error("Error al crear el servicio. Por favor, verifica los datos.");
+      console.error("Error creating service:", error);
+    }
+  },
+  editService: async (service) => {
+    const {
+      id,
+      name: nombre,
+      description: descripcion,
+      price: precio,
+      duration: duracion_estimada,
+      isActive: activo,
+    } = service;
+    try {
+      const response = await api.put(
+        `/servicios/${id}/`,
+        { nombre, descripcion, precio, duracion_estimada, activo }
+      );
+      const updatedService = response.data;
+
+      set((state) => ({
+        services: state.services.map((service) => service.id === id ? updatedService : service)
+      }));
+      toast.success("Servicio editado exitsamente.");
+    } catch (error) {
+      toast.error("Error al editar el servicio.");
+      console.error(error);
+    }
+  },
+  getServices: async () => {
+    try {
+      const response = await api.get('/servicios/');
+      const services = response.data;
+      set({ services });
+    } catch (error) {
+      console.error("Error fetching services:", error);
+    }
+  },
+  toggleServiceStatus: async (data) => {
+    const { id, status } = data;
+    const nextStatus = status ? 0 : 1;
+    try {
+      await api.put(`/servicios/${id}/activo/${nextStatus}/`);
+      set((state) => ({
+        services: state.services.map((service) =>
+          service.id === id ? { ...service, activo: !status } : service
+        )
+      }));
+    } catch (error) {
+      toast.error("Error al cambiar el estado del servicio.");
+      console.error(error);
+    }
+  }
 }));
 
 export default useServiceStore;

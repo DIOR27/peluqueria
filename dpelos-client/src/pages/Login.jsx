@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import dpelosn from "../assets/dpelosn.svg";
 import { Image } from "../components/ui/Image";
 import { Button } from "../components/ui/Button";
@@ -7,6 +7,7 @@ import { Formik, Form } from "formik";
 import FormInput from "../components/ui/FormInput";
 import FormPasswordInput from "../components/ui/FormPasswordInput";
 import * as Yup from "yup";
+import useAuthStore from "../stores/authStore";
 
 const initialValues = {
   email: "",
@@ -20,14 +21,19 @@ const validationSchema = Yup.object({
   password: Yup.string().required("La contraseña es requerida"),
 });
 
-const handleSubmit = (values, { setSubmitting }) => {
-  setTimeout(() => {
-    console.log(values);
-    setSubmitting(false);
-  }, 3000);
-};
-
 export default function Login() {
+  const { login } = useAuthStore();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (values, { setSubmitting }) => {
+    const sucess = await login(values.email, values.password);
+    if (sucess) {
+      navigate("/panel");
+    }
+    // const currentError = useAuthStore.getState().error;
+    setSubmitting(false);
+  };
+
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
       <Link
@@ -97,7 +103,7 @@ export default function Login() {
           )}
         </Formik>
 
-        <div className="text-center mt-6">
+        {/* <div className="text-center mt-6">
           <p className="text-sm text-gray-600">
             ¿No tienes una cuenta?
             <Link
@@ -107,7 +113,7 @@ export default function Login() {
               Regístrate
             </Link>
           </p>
-        </div>
+        </div> */}
       </div>
     </div>
   );
