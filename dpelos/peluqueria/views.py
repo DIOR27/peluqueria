@@ -293,6 +293,12 @@ class ReservaViewSet(ModelViewSet):
             hora_inicio_nueva = datetime.strptime(hora_str, "%H:%M:%S")
         except ValueError:
             return Response({'error': 'Formato de hora inválido. Usa HH:MM:SS'}, status=400)
+        
+        #validar si el servicio y especialistas estan activos
+        especialista = Especialista.objects.get(id=especialista_id)
+        if(especialista.activo == False or servicio.activo ==False):
+            return Response({'error': 'Especialista o Servicio no se encuentran activos'}, status=400)
+        
 
         # Obtener duración del servicio
         duracion_servicio = servicio.duracion_estimada
@@ -309,7 +315,7 @@ class ReservaViewSet(ModelViewSet):
             duracion_existente = reserva.servicio_id.duracion_estimada
             hora_fin_existente = hora_inicio_existente + timedelta(minutes=duracion_existente)
 
-            if hora_inicio_nueva <= hora_fin_existente and hora_fin_nueva >= hora_inicio_existente:
+            if hora_inicio_nueva < hora_fin_existente and hora_fin_nueva > hora_inicio_existente:
                 return Response({'error': 'El especialista ya tiene una reserva en ese intervalo de tiempo'}, status=400)
 
         # Generar código de reserva único
@@ -326,7 +332,6 @@ class ReservaViewSet(ModelViewSet):
         week_day = reserva.fecha.strftime('%A').lower()
         
         # Enviar correo al usuario
-
         mailto = (
             reserva.usuario_id.email
             if reserva.usuario_id and reserva.usuario_id.email
