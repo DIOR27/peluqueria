@@ -373,7 +373,7 @@ class ReservaViewSet(ModelViewSet):
                 'hora': reserva.hora,
                 'estado': reserva.estado,
                 'codigo_reserva': reserva.codigo_reserva,
-                'usuario_id': reserva.usuario_id.id,
+                'usuario_id': reserva.usuario_id.id if reserva.usuario_id else None,
                 'especialista_id': reserva.especialista_id.id,
                 'servicio_id': reserva.servicio_id.id
             }
