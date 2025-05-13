@@ -369,13 +369,13 @@ class ReservaViewSet(ModelViewSet):
             'message': 'Reserva creada exitosamente',
             'reserva': {
                 'id': reserva.id,
-                'usuario': reserva.usuario_id.id if reserva.usuario_id else 'Usuario externo',
-                'especialista': reserva.especialista_id.id,
-                'servicio': reserva.servicio_id.id,
                 'fecha': reserva.fecha,
                 'hora': reserva.hora,
                 'estado': reserva.estado,
-                'codigo_reserva': reserva.codigo_reserva
+                'codigo_reserva': reserva.codigo_reserva,
+                'usuario_id': reserva.usuario_id.id,
+                'especialista_id': reserva.especialista_id.id,
+                'servicio_id': reserva.servicio_id.id
             }
         }, status=status.HTTP_201_CREATED)
 
