@@ -1,5 +1,6 @@
 import { Button } from "./ui/Button";
 import { Image } from "./ui/Image";
+import { Link } from "react-router-dom";
 import beardTrim from "../assets/haircut-beard-trim.jpg";
 import trimmingHair from "../assets/trimming-hair.jpg";
 import shavingBeard from "../assets/shaving-beard.jpg";
@@ -13,9 +14,11 @@ export default function HeroSection() {
           <p className="text-gray-600">
             En D'Pelos no solo cortamos cabello, creamos experiencias que te harán sentir renovado y con estilo.
           </p>
-          <Button size="lg" className="rounded-full">
-            Agendar ahora
-          </Button>
+          <Link to="/agendar">
+            <Button size="lg" className="rounded-full">
+              Agendar ahora
+            </Button>
+          </Link>
         </div>
         <div className="md:w-1/2">
           <div className="grid grid-cols-2 gap-4 h-[300px]">
