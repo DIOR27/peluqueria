@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import dpelosn from "../assets/dpelosn.svg";
 import { Image } from "../components/ui/Image";
@@ -25,17 +26,32 @@ export default function Login() {
   const { login } = useAuthStore();
   const navigate = useNavigate();
 
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setVisible(true);
+    }, 300); 
+
+    return () => clearTimeout(timer);
+  }, []);
+
   const handleSubmit = async (values, { setSubmitting }) => {
     const sucess = await login(values.email, values.password);
     if (sucess) {
       navigate("/panel");
     }
-    // const currentError = useAuthStore.getState().error;
     setSubmitting(false);
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
+    <div
+      className="flex flex-col items-center justify-center h-screen bg-gray-100"
+      style={{
+        opacity: visible ? 1 : 0,
+        transition: "opacity 1s ease-in-out",
+      }}
+    >
       <Link
         className="absolute top-4 left-4 flex items-center text-gray-600 hover:text-gray-500 mb-4 gap-2"
         to="/"
@@ -102,19 +118,8 @@ export default function Login() {
             </Form>
           )}
         </Formik>
-
-        {/* <div className="text-center mt-6">
-          <p className="text-sm text-gray-600">
-            ¿No tienes una cuenta?
-            <Link
-              to="/registro"
-              className="font-medium text-gold-600 hover:text-gold-500 ml-2"
-            >
-              Regístrate
-            </Link>
-          </p>
-        </div> */}
       </div>
     </div>
   );
 }
+
