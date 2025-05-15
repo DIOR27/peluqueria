@@ -7,6 +7,7 @@ import FormSelect from "../ui/FormSelect";
 import "./AppointmentForm.css";
 import dpelosn from "../../assets/dpelosn.svg";
 
+
 const servicesOptions = [
   { value: "corte", label: "Corte" },
   { value: "barba", label: "Barba" },
@@ -14,7 +15,7 @@ const servicesOptions = [
 
 const specialistsOptions = [
   { value: "juan", label: "Juan" },
-  { value: "mario", label: "Mario" },
+  { value: "carlos", label: "Carlos" },
 ];
 
 const initialValues = {

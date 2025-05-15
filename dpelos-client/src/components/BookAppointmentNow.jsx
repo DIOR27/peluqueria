@@ -1,4 +1,5 @@
 import { Button } from "./ui/Button";
+import { Link } from "react-router-dom";
 
 const services = [
   { name: "Corte de cabello", href: "#" },
@@ -28,12 +29,14 @@ export default function BookAppointmentNow() {
           ))}
         </div>
 
-        <Button
-          size="lg"
-          className="bg-white text-black hover:bg-gold-500 hover:text-white rounded-full"
-        >
-          Agendar cita
-        </Button>
+        <Link to="/agendar">
+          <Button
+            size="lg"
+            className="bg-white text-black hover:bg-gold-500 hover:text-white rounded-full"
+          >
+            Agendar cita
+          </Button>
+        </Link>
       </div>
     </section>
   );

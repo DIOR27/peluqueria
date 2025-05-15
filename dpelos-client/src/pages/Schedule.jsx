@@ -8,7 +8,7 @@ const Schedule = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setVisible(true);
-    }, 200); // 2 segundos de opacidad
+    }, 200); 
 
     return () => clearTimeout(timer);
   }, []);
