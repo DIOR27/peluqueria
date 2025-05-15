@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Image } from "./ui/Image";
 import emptyRoom from "../assets/empty-room.jpg";
 import { Clock } from "lucide-react";
@@ -40,7 +41,11 @@ export default function WorkingHours() {
               <p>CERRADO</p>
             </div>
             <div>
-              <Button className="rounded-full">Agendar cita</Button>
+              <Link to="/agendar">
+                <Button className="rounded-full">
+                  Agendar cita
+                </Button>
+              </Link>
             </div>
           </div>
         </div>
