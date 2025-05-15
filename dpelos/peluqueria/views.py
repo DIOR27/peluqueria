@@ -411,11 +411,12 @@ def obtener_reserva_por_codigo(request, codigo_reserva):
                 codigo_reserva=codigo_reserva,
                 estado__in=["pendiente", "confirmada"]
             ).first()
-
+        if not reserva:
+            return Response({'error': 'La reserva no existe o ya no se encuentra disponible'}, status=status.HTTP_404_NOT_FOUND)
         serializer = ReservaSerializer(reserva)
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Reserva.DoesNotExist:
-        return Response({'error': 'La reserva no existe o ya no se encuentra disponible'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': 'Ha ocurrido un error al obtener la reserva.'}, status=status.HTTP_404_NOT_FOUND)
     
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
