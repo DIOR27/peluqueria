@@ -42,6 +42,7 @@ class EspecialistaServicio(models.Model):
 
 class Reserva(models.Model):
     usuario_id = models.ForeignKey(Usuario, on_delete=models.CASCADE, null=True, blank=True)
+    clientEmail = models.EmailField(null=True, blank=True)
     especialista_id = models.ForeignKey(Especialista, on_delete=models.CASCADE)
     servicio_id = models.ForeignKey(Servicio, on_delete=models.CASCADE)
     fecha = models.DateField()
@@ -50,7 +51,7 @@ class Reserva(models.Model):
     codigo_reserva = models.CharField(max_length=6, unique=True)
 
     def __str__(self):
-        return f"Reserva de {self.usuario_id} con {self.especialista_id} para {self.servicio_id} en {self.fecha} a las {self.hora}"
+        return f"Reserva de {self.usuario_id.__str__ or self.clientEmail} con {self.especialista_id} para {self.servicio_id} en {self.fecha} a las {self.hora}"
 
 class Notificacion(models.Model):
     usuario_id = models.ForeignKey(Usuario, on_delete=models.CASCADE)

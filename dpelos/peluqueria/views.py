@@ -13,9 +13,11 @@ from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.conf import settings
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from django.utils.timezone import now
+from django.db.models import Q
 
+import re
 import locale
 
 class GroupViewSet(ReadOnlyModelViewSet):  # solo permite listar y ver detalles
@@ -278,6 +280,12 @@ class ReservaViewSet(ModelViewSet):
         fecha = data.get('fecha')
         hora_str = data.get('hora')
         servicio_id = data.get('servicio_id')
+        clientEmail = data.get('clientEmail')
+
+        if not clientEmail:
+            usuario_id = data.get('usuario_id')
+            usuario = Usuario.objects.get(id=usuario_id)
+            data['clientEmail'] = usuario.email
 
         if not (especialista_id and servicio_id and fecha and hora_str):
             return Response({'error': 'Se requiere especialista_id, servicio_id, fecha y hora'}, status=400)
@@ -380,13 +388,35 @@ class ReservaViewSet(ModelViewSet):
         }, status=status.HTTP_201_CREATED)
 
 @api_view(['GET'])
+@permission_classes([AllowAny])
 def obtener_reserva_por_codigo(request, codigo_reserva):
     try:
-        reserva = Reserva.objects.get(codigo_reserva=codigo_reserva)
+        if re.match(r"[^@]+@[^@]+\.[^@]+", codigo_reserva):
+            fecha_actual = now().date()
+            hora_actual = now().time()
+
+            reserva = (
+                Reserva.objects
+                .filter(
+                    clientEmail=codigo_reserva,
+                    estado__in=["pendiente", "confirmada"]
+                )
+                .filter(
+                    Q(fecha__gt=fecha_actual) |
+                    Q(fecha=fecha_actual, hora__gte=hora_actual)
+                ).order_by("fecha", "hora").first()
+            )
+        else:
+            reserva = Reserva.objects.filter(
+                codigo_reserva=codigo_reserva,
+                estado__in=["pendiente", "confirmada"]
+            ).first()
+        if not reserva:
+            return Response({'error': 'La reserva no existe o ya no se encuentra disponible'}, status=status.HTTP_404_NOT_FOUND)
         serializer = ReservaSerializer(reserva)
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Reserva.DoesNotExist:
-        return Response({'error': 'Reserva no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+        return Response({'error': 'Ha ocurrido un error al obtener la reserva.'}, status=status.HTTP_404_NOT_FOUND)
     
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
