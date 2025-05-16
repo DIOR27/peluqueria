@@ -14,8 +14,6 @@ from datetime import timedelta
 from pathlib import Path
 from dotenv import load_dotenv
 import os
-import pymysql
-pymysql.install_as_MySQLdb()
 
 load_dotenv()
 
@@ -91,10 +89,10 @@ WSGI_APPLICATION = 'dpelos.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'dpelos',
-        'USER': 'root',
-        'PASSWORD': 'Konomisuzuki123',
-        'HOST': 'localhost',
+        'NAME': os.getenv('DATABASE_NAME', 'dpelos'),
+        'USER': os.getenv('DATABASE_USER'),
+        'PASSWORD': os.getenv('DATABASE_PASSWORD'),
+        'HOST': os.getenv('DATABASE_HOST', 'localhost'),
         'PORT': '3306',
     }
 }

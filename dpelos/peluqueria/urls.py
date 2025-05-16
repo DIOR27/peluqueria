@@ -14,7 +14,8 @@ from .views import (
     user_info,
     change_specialist_status,
     change_service_status,
-    horarios_disponibles
+    horarios_disponibles,
+    actualizar_reserva
 )
 
 default_router = DefaultRouter()
@@ -42,6 +43,7 @@ urlpatterns = [
     path('especialistas/<int:pk>/activo/<int:set_active>/', change_specialist_status, name='estadoespecialista'),
     path('servicios/<int:pk>/activo/<int:set_active>/', change_service_status, name='estadoservicio'),
     path('reservas/horarios_disponibles/', horarios_disponibles, name='horariosdisponibles'),
+    path('reservas/actualizar/<int:pk>/<str:estado>/', actualizar_reserva, name='actualizarreserva'),
 ]
 
 urlpatterns += default_router.urls

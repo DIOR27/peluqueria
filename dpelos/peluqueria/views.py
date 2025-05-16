@@ -307,47 +307,7 @@ class ReservaViewSet(ModelViewSet):
         serializer.is_valid(raise_exception=True)
         reserva = serializer.save(usuario_id=None)
 
-        locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
-        
-        
-
-# Justo antes de usar strftime
-        if isinstance(reserva.fecha, str):
-            reserva_fecha_obj = datetime.strptime(reserva.fecha, "%Y-%m-%d").date()
-        else:
-            reserva_fecha_obj = reserva.fecha
-
-        week_day = reserva_fecha_obj.strftime('%A').lower()
-       
-        
-        mailto = clientEmail  # Enviar al email del formulario
-
-        try:
-            subject = f'Confirmación de Reserva N° {reserva.codigo_reserva}'
-            from_email = settings.DEFAULT_FROM_EMAIL
-            to_email = [mailto]
-            context = {
-                'usuario': str(data.get('nombre', '')),
-                'especialista': str(reserva.especialista_id) if reserva.especialista_id else '',
-                'servicio': str(reserva.servicio_id.nombre) if reserva.servicio_id and reserva.servicio_id.nombre else '',
-                'fecha': str(reserva.fecha) if reserva.fecha else '',
-                'hora': str(reserva.hora) if reserva.hora else '',
-                'codigo_reserva': str(reserva.codigo_reserva) if reserva.codigo_reserva else '',
-                'dia_semana': str(week_day) if week_day else '',
-            }
-            
-            html_content = render_to_string('emails/booking_template.html', context)
-
-            message = EmailMultiAlternatives(
-                subject=subject,
-                body='',
-                from_email=from_email,
-                to=to_email
-            )
-            message.attach_alternative(html_content, 'text/html')
-            message.send()
-        except Exception as e:
-            return Response({'error': f'Error al enviar el correo: {str(e)}'}, status=500)
+        enviar_correo(reserva, 'emails/booking_template.html', request)
 
         return Response({
             'message': 'Reserva creada exitosamente',
@@ -362,6 +322,46 @@ class ReservaViewSet(ModelViewSet):
                 'servicio_id': reserva.servicio_id.id
             }
         }, status=status.HTTP_201_CREATED)
+
+def enviar_correo(reserva, template, request):
+
+    locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
+    week_day = reserva.fecha.strftime('%A').lower()
+
+    # Obtener correo del destinatario
+    mailto = (
+        reserva.usuario_id.email
+        if reserva.usuario_id and reserva.usuario_id.email
+        else request.data.get('clientEmail')
+    )
+
+    try:
+        subject = f'Confirmación de Reserva N° {reserva.codigo_reserva}'
+        from_email = settings.DEFAULT_FROM_EMAIL
+        to_email = [mailto]
+        context = {
+            'usuario': str(reserva.usuario_id) if reserva.usuario_id else request.data.get('clientName'),
+            'especialista': str(reserva.especialista_id) if reserva.especialista_id else '',
+            'servicio': str(reserva.servicio_id.nombre) if reserva.servicio_id and reserva.servicio_id.nombre else '',
+            'fecha': str(reserva.fecha) if reserva.fecha else '',
+            'hora': str(reserva.hora) if reserva.hora else '',
+            'codigo_reserva': str(reserva.codigo_reserva) if reserva.codigo_reserva else '',
+            'dia_semana': str(week_day) if week_day else '',
+        }
+
+        html_content = render_to_string(template, context)
+
+        message = EmailMultiAlternatives(
+            subject=subject,
+            body='',
+            from_email=from_email,
+            to=to_email
+        )
+        message.attach_alternative(html_content, 'text/html')
+        message.send()
+
+    except Exception as e:
+        return Response({'error': f'Error al enviar el correo: {str(e)}'}, status=500)
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
@@ -393,7 +393,26 @@ def obtener_reserva_por_codigo(request, codigo_reserva):
         return Response(serializer.data, status=status.HTTP_200_OK)
     except Reserva.DoesNotExist:
         return Response({'error': 'Ha ocurrido un error al obtener la reserva.'}, status=status.HTTP_404_NOT_FOUND)
-    
+
+@api_view(['PUT'])
+@permission_classes([AllowAny])
+def actualizar_reserva(request, pk, estado):
+    try:
+        reserva = Reserva.objects.get(pk=pk)
+    except Reserva.DoesNotExist:
+        return Response({'error': 'Reserva no encontrada'}, status=status.HTTP_404_NOT_FOUND)
+
+    reserva.estado = estado
+    reserva.save()
+
+    if reserva.estado == "confirmada":
+        enviar_correo(reserva, 'emails/booking_confirmed_template.html', request)
+        return Response({'message': 'Su cita ha sido confirmada con éxito.'}, status=status.HTTP_200_OK)
+    elif reserva.estado == "cancelada":
+        return Response({'message': 'Su cita ha sido cancelada con éxito.'}, status=status.HTTP_200_OK)
+
+    return Response({'message': 'Reserva actualizada exitosamente'}, status=status.HTTP_200_OK)
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def horarios_disponibles(request):
