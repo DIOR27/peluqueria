@@ -14,6 +14,7 @@ import { Sheet } from "../../ui/Sheet";
 import useAppointmentStore from "../../../stores/appointmentStore";
 import useServiceStore from "../../../stores/serviceStore";
 import useSpecialistStore from "../../../stores/specialistStore";
+import { esFechaHoraPasada } from "../../../lib/utils";
 
 const statusColors = {
   confirmada: "bg-green-100 text-green-800",
@@ -147,20 +148,44 @@ export default function AppointmentsTable({
                           Ver detalles
                         </button>
                       </MenuItem>
-                      <MenuItem className="w-[180px] px-4 py-2 cursor-pointer data-[focus]:bg-gray-100">
-                        <button
-                          className="text-left font-medium"
-                          onClick={() => handleEdit(appointment)}
-                        >
-                          Editar
-                        </button>
+                      <MenuItem className="w-[180px] px-4 py-2 data-[focus]:bg-gray-100">
+                        {!esFechaHoraPasada(
+                          appointment.fecha,
+                          appointment.hora
+                        ) ? (
+                          <button
+                            className="text-left font-medium cursor-pointer"
+                            onClick={() => handleEdit(appointment)}
+                          >
+                            Editar
+                          </button>
+                        ) : (
+                          <div className="text-gray-400" title="Cita pasada">
+                            Editar
+                          </div>
+                        )}
                       </MenuItem>
                       <MenuSeparator className="h-px bg-gray-200" />
-                      <MenuItem className="w-[180px] px-4 py-2 cursor-pointer data-[focus]:bg-gray-100">
-                        <button className="text-left font-medium text-red-500">
-                          Cancelar
-                        </button>
-                      </MenuItem>
+                      {!esFechaHoraPasada(
+                        appointment.fecha,
+                        appointment.hora
+                      ) && appointment.estado !== "cancelada" ? (
+                        <MenuItem className="w-[180px] px-4 py-2 cursor-pointer data-[focus]:bg-gray-100">
+                          <button className="text-left font-medium text-red-500">
+                            Cancelar
+                          </button>
+                        </MenuItem>
+                      ) : null}
+                      {esFechaHoraPasada(appointment.fecha, appointment.hora) &&
+                      !["cancelada", "completada"].includes(
+                        appointment.estado
+                      ) ? (
+                        <MenuItem className="w-[180px] px-4 py-2 cursor-pointer data-[focus]:bg-gray-100">
+                          <button className="text-left font-medium text-green-500">
+                            Completar
+                          </button>
+                        </MenuItem>
+                      ) : null}
                     </MenuItems>
                   </Menu>
                 </td>

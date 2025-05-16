@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import useAppointmentStore from "../../../stores/appointmentStore";
 import { Button } from "../../ui/Button";
+import { esFechaHoraPasada } from "../../../lib/utils";
 
 const statusColors = {
   confirmada: "bg-green-100 text-green-800",
@@ -47,7 +48,8 @@ export default function AppointmentDetail({
           <div>
             <h4 className="text-sm font-medium text-gray-500">Fecha y Hora</h4>
             <p className="mt-1">
-              {new Date(fecha).toLocaleDateString()} a las {hora}
+              {/* {new Date(fecha).toLocaleDateString()} a las {hora} */}
+              {fecha} a las {hora}
             </p>
           </div>
           <div>
@@ -68,7 +70,9 @@ export default function AppointmentDetail({
         <Button variant="outline" onClick={onClose}>
           Cerrar
         </Button>
-        <Button onClick={onEditClick}>Editar</Button>
+        {!esFechaHoraPasada(fecha, hora) ? (
+          <Button onClick={onEditClick}>Editar</Button>
+        ) : null}
       </div>
     </div>
   );
