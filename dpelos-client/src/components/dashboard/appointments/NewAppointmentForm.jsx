@@ -4,14 +4,24 @@ import { Formik, Form } from "formik";
 import FormInput from "../../ui/FormInput";
 import FormSelect from "../../ui/FormSelect";
 import * as Yup from "yup";
+import FormChangeMonitor from "./FormChangeMonitor";
+import useServiceStore from "../../../stores/serviceStore";
+import useSpecialistStore from "../../../stores/specialistStore";
+import { useEffect } from "react";
+import useAppointmentStore from "../../../stores/appointmentStore";
 
 export default function AppointmentForm({
   isOpen,
   onClose,
   appointment = null,
 }) {
+  const { services, getServices } = useServiceStore();
+  const { specialists, getSpecialists } = useSpecialistStore();
+  const { availableTimeSlots, createAppointment, getAvailableTimes } =
+    useAppointmentStore();
   const initialValues = {
     clientName: "",
+    clientEmail: "",
     service: "",
     specialist: "",
     date: "",
@@ -19,33 +29,59 @@ export default function AppointmentForm({
   };
   const validationSchema = Yup.object({
     clientName: Yup.string().required("El nombre del cliente es requerido"),
+    clientEmail: Yup.string()
+      .email("Formato de email inválido")
+      .required("El email es requerido"),
     service: Yup.string().required("El servicio es requerido"),
     specialist: Yup.string().required("El especialista es requerido"),
     date: Yup.string().required("La fecha es requerida"),
     time: Yup.string().required("La hora es requerida"),
   });
 
-  const onSubmit = (values, { setSubmitting }) => {
-    setTimeout(() => {
-      alert(JSON.stringify(values, null, 2));
-      setSubmitting(false);
-    }, 400);
-    onClose();
+  useEffect(() => {
+    getSpecialists();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    getServices();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const servicesOptions = services
+    ?.filter((service) => service.activo)
+    .map((service) => ({
+      value: service.id,
+      label: `${service.nombre} (${service.duracion_estimada} mins)`,
+    }));
+  const specialistsOptions = specialists
+    ?.filter((spec) => spec.activo)
+    .map((spec) => ({
+      value: spec.id,
+      label: `${spec.nombre} ${spec.apellido}`,
+    }));
+  const timeSlotsOptions = availableTimeSlots?.map((timeSlot) => ({
+    value: timeSlot,
+    label: timeSlot,
+  }));
+
+  const onSubmit = async (values, { setSubmitting }) => {
+    const result = await createAppointment(values);
+    if (result) {
+      onClose();
+    }
+    setSubmitting(false);
   };
 
-  const servicesOptions = [
-    { value: "Corte de cabello", label: "Corte de cabello" },
-    { value: "Afeitado tradicional", label: "Afeitado tradicional" },
-    { value: "Perfilado de barba", label: "Perfilado de barba" },
-    { value: "Coloración", label: "Coloración" },
-  ];
+  const fetchAvailableSlots = async (values) => {
+    const {
+      date: fecha,
+      specialist: especialista_id,
+      service: servicio_id,
+    } = values;
 
-  const specialistsOptions = [
-    { value: "Carlos Rodríguez", label: "Carlos Rodríguez" },
-    { value: "Miguel Ángel", label: "Miguel Ángel" },
-    { value: "Daniel Torres", label: "Daniel Torres" },
-    { value: "Roberto Sánchez", label: "Roberto Sánchez" },
-  ];
+    await getAvailableTimes({ fecha, especialista_id, servicio_id });
+  };
 
   return (
     <Sheet
@@ -58,42 +94,62 @@ export default function AppointmentForm({
         validationSchema={validationSchema}
         onSubmit={onSubmit}
       >
-        <Form>
-          <FormInput
-            label="Nombre del Cliente"
-            name="clientName"
-            placeholder="Ingresa el nombre del cliente"
-          />
-          <div className="flex flex-col gap-4 mb-4">
-            <FormSelect
-              label="Servicio"
-              name="service"
-              options={servicesOptions}
-              placeholder="Selecciona un servicio"
-              isClearable
+        {({ isSubmitting }) => (
+          <Form>
+            <FormChangeMonitor
+              fieldsToWatch={["service", "specialist", "date"]}
+              onConditionMet={fetchAvailableSlots}
             />
-
-            <FormSelect
-              label="Especialista"
-              name="specialist"
-              options={specialistsOptions}
-              placeholder="Selecciona un especialista"
-              isClearable
+            <FormInput
+              label="Nombre del Cliente"
+              name="clientName"
+              placeholder="Ingresa el nombre del cliente"
             />
-          </div>
+            <FormInput
+              label="Email del Cliente"
+              name="clientEmail"
+              placeholder="example@gmail.com"
+            />
+            <div className="flex flex-col gap-4 mb-4">
+              <FormSelect
+                label="Servicio"
+                name="service"
+                options={servicesOptions}
+                placeholder="Selecciona un servicio"
+                isClearable
+              />
 
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <FormInput label="Fecha" name="date" type="date" />
-            <FormInput label="Hora" name="time" type="time" />
-          </div>
+              <FormSelect
+                label="Especialista"
+                name="specialist"
+                options={specialistsOptions}
+                placeholder="Selecciona un especialista"
+                isClearable
+              />
+            </div>
 
-          <div className="flex justify-end gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={onClose}>
-              Cancelar
-            </Button>
-            <Button type="submit">Crear</Button>
-          </div>
-        </Form>
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <FormInput label="Fecha" name="date" type="date" />
+              {/* <FormInput label="Hora" name="time" type="time" /> */}
+              <FormSelect
+                label="Hora"
+                name="time"
+                options={timeSlotsOptions}
+                placeholder="Hora"
+                isClearable
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 pt-4">
+              <Button type="button" variant="outline" onClick={onClose}>
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Enviando" : "Crear"}
+              </Button>
+            </div>
+          </Form>
+        )}
       </Formik>
     </Sheet>
   );

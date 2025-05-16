@@ -1,8 +1,10 @@
 import useAppointmentStore from "../../../stores/appointmentStore";
+import useSpecialistStore from "../../../stores/specialistStore";
 import Select from "../../ui/Select";
 
 export default function AppointmentsFilters({ setCurrentPage }) {
   const { filters, setFilters } = useAppointmentStore();
+  const { specialists } = useSpecialistStore();
 
   const handleFilterChange = (value, name) => {
     setFilters({ ...filters, [name]: value });
@@ -10,17 +12,15 @@ export default function AppointmentsFilters({ setCurrentPage }) {
   };
 
   const statusOptions = [
-    { value: "confirmed", label: "Confirmada" },
-    { value: "pending", label: "Pendiente" },
-    { value: "completed", label: "Completada" },
-    { value: "cancelled", label: "Cancelada" },
+    { value: "confirmada", label: "Confirmada" },
+    { value: "pendiente", label: "Pendiente" },
+    { value: "completada", label: "Completada" },
+    { value: "cancelada", label: "Cancelada" },
   ];
-  const specialistOptions = [
-    { value: "Carlos Rodríguez", label: "Carlos Rodríguez" },
-    { value: "Miguel Ángel", label: "Miguel Ángel" },
-    { value: "Daniel Torres", label: "Daniel Torres" },
-    { value: "Roberto Sánchez", label: "Roberto Sánchez" },
-  ];
+  const specialistOptions = specialists.map((spec) => ({
+    value: spec.id,
+    label: `${spec.nombre} ${spec.apellido}`,
+  }));
 
   return (
     <div className="bg-white rounded-lg shadow p-4 space-y-4">
@@ -29,7 +29,7 @@ export default function AppointmentsFilters({ setCurrentPage }) {
           <Select
             label="Estado"
             options={statusOptions}
-            onChange={(e) => handleFilterChange(e?.value ?? "", 'status')}
+            onChange={(e) => handleFilterChange(e?.value ?? "", "status")}
             isClearable
           />
         </div>
@@ -37,7 +37,7 @@ export default function AppointmentsFilters({ setCurrentPage }) {
           <Select
             label="Especialista"
             options={specialistOptions}
-            onChange={(e) => handleFilterChange(e?.value ?? "", 'specialist')}
+            onChange={(e) => handleFilterChange(e?.value ?? "", "specialist")}
             isClearable
           />
         </div>
