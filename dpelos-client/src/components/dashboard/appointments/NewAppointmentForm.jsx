@@ -94,58 +94,62 @@ export default function AppointmentForm({
         validationSchema={validationSchema}
         onSubmit={onSubmit}
       >
-        <Form>
-          <FormChangeMonitor
-            fieldsToWatch={["service", "specialist", "date"]}
-            onConditionMet={fetchAvailableSlots}
-          />
-          <FormInput
-            label="Nombre del Cliente"
-            name="clientName"
-            placeholder="Ingresa el nombre del cliente"
-          />
-          <FormInput
-            label="Email del Cliente"
-            name="clientEmail"
-            placeholder="example@gmail.com"
-          />
-          <div className="flex flex-col gap-4 mb-4">
-            <FormSelect
-              label="Servicio"
-              name="service"
-              options={servicesOptions}
-              placeholder="Selecciona un servicio"
-              isClearable
+        {({ isSubmitting }) => (
+          <Form>
+            <FormChangeMonitor
+              fieldsToWatch={["service", "specialist", "date"]}
+              onConditionMet={fetchAvailableSlots}
             />
-
-            <FormSelect
-              label="Especialista"
-              name="specialist"
-              options={specialistsOptions}
-              placeholder="Selecciona un especialista"
-              isClearable
+            <FormInput
+              label="Nombre del Cliente"
+              name="clientName"
+              placeholder="Ingresa el nombre del cliente"
             />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <FormInput label="Fecha" name="date" type="date" />
-            {/* <FormInput label="Hora" name="time" type="time" /> */}
-            <FormSelect
-              label="Hora"
-              name="time"
-              options={timeSlotsOptions}
-              placeholder="Hora"
-              isClearable
+            <FormInput
+              label="Email del Cliente"
+              name="clientEmail"
+              placeholder="example@gmail.com"
             />
-          </div>
+            <div className="flex flex-col gap-4 mb-4">
+              <FormSelect
+                label="Servicio"
+                name="service"
+                options={servicesOptions}
+                placeholder="Selecciona un servicio"
+                isClearable
+              />
 
-          <div className="flex justify-end gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={onClose}>
-              Cancelar
-            </Button>
-            <Button type="submit">Crear</Button>
-          </div>
-        </Form>
+              <FormSelect
+                label="Especialista"
+                name="specialist"
+                options={specialistsOptions}
+                placeholder="Selecciona un especialista"
+                isClearable
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <FormInput label="Fecha" name="date" type="date" />
+              {/* <FormInput label="Hora" name="time" type="time" /> */}
+              <FormSelect
+                label="Hora"
+                name="time"
+                options={timeSlotsOptions}
+                placeholder="Hora"
+                isClearable
+              />
+            </div>
+
+            <div className="flex justify-end gap-2 pt-4">
+              <Button type="button" variant="outline" onClick={onClose}>
+                Cancelar
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Enviando" : "Crear"}
+              </Button>
+            </div>
+          </Form>
+        )}
       </Formik>
     </Sheet>
   );
