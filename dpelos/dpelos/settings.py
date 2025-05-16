@@ -14,6 +14,8 @@ from datetime import timedelta
 from pathlib import Path
 from dotenv import load_dotenv
 import os
+import pymysql
+pymysql.install_as_MySQLdb()
 
 load_dotenv()
 
@@ -91,7 +93,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'dpelos',
         'USER': 'root',
-        'PASSWORD': 'root',
+        'PASSWORD': 'Konomisuzuki123',
         'HOST': 'localhost',
         'PORT': '3306',
     }

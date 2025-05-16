@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
@@ -7,15 +6,18 @@ import FormSelect from "../ui/FormSelect";
 import "./AppointmentForm.css";
 import dpelosn from "../../assets/dpelosn.svg";
 
-
 const servicesOptions = [
-  { value: "corte", label: "Corte" },
-  { value: "barba", label: "Barba" },
+  { value: "1", label: "Corte de cabello" },
+  { value: "2", label: "Afeitado tradicional" },
+  { value: "3", label: "Perfilado de barba" },
+  { value: "4", label: "Coloración" },
 ];
 
 const specialistsOptions = [
-  { value: "juan", label: "Juan" },
-  { value: "carlos", label: "Carlos" },
+  { value: "1", label: "Carlos Rodríguez" },
+  { value: "2", label: "Miguel Ángel" },
+  { value: "3", label: "Daniel Torres" },
+  { value: "4", label: "Roberto Sánchez" },
 ];
 
 const initialValues = {
@@ -46,44 +48,56 @@ const validationSchema = Yup.object({
 
 const AppointmentForm = () => {
   const [selectedHour, setSelectedHour] = useState(null);
-  const [formData, setFormData] = useState({
-    nombre: "",
-    apellido: "",
-    email: "",
-    telefono: "",
-    fecha: "",
-  });
-
-  const services = [
-    { value: "corte", label: "Corte de cabello" },
-    { value: "afeitado", label: "Afeitado tradicional" },
-    { value: "perfilado", label: "Perfilado de barba" },
-    { value: "coloración", label: "Coloración" },
-  ];
-
-  const specialists = [
-    { value: "carlos", label: "Carlos Rodríguez" },
-    { value: "miguel", label: "Miguel Ángel" },
-    { value: "daniel", label: "Daniel Torres" },
-    { value: "roberto", label: "Roberto Sánchez" },
-  ];
 
   const handleHourClick = (hour, setFieldValue) => {
     setSelectedHour(hour);
     setFieldValue("hora", hour);
   };
 
-  const handleSubmit = (values) => {
-    console.log("Formulario enviado:", values);
-  };
+  const handleSubmit = async (values, { setSubmitting, resetForm }) => {
+    try {
+      
+      const fechaObj = new Date(values.fecha);
+      const fechaFormateada = fechaObj.toISOString().split('T')[0];
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+      
+      const horaFormateada = values.hora.length === 5 ? values.hora + ':00' : values.hora;
+
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/reservas/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            especialista_id: values.especialista,
+            servicio_id: values.servicio,
+            fecha: fechaFormateada,
+            hora: horaFormateada,
+            clientEmail: values.email,
+            nombre: values.nombre,
+            apellido: values.apellido,
+            telefono: values.telefono,
+          }),
+        }
+      );
+      const data = await response.json();
+      if (response.ok) {
+        alert("Reserva creada exitosamente");
+        resetForm();
+        setSelectedHour(null);
+      } else {
+        alert("Error: " + (data.error || "No se pudo crear la reserva"));
+      }
+    } catch (error) {
+      alert("Error de red: " + error.message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
-
     <section className="form-container">
       <Formik
         initialValues={initialValues}
@@ -139,20 +153,27 @@ const AppointmentForm = () => {
                   placeholder="Seleccione una fecha"
                 />
                 <div className="horas">
-                  {["08:00", "09:30", "11:00", "12:30", "14:00", "15:30", "17:00", "19:30", "21:00", "22:30"].map(
-                    (hour) => (
-                      <button
-                        key={hour}
-                        type="button"
-                        className={`hour-button ${
-                          selectedHour === hour ? "selected" : ""
-                        }`}
-                        onClick={() => handleHourClick(hour, setFieldValue)}
-                      >
-                        {hour}
-                      </button>
-                    )
-                  )}
+                  {[
+                    "08:00",
+                    "09:30",
+                    "11:00",
+                    "12:30",
+                    "14:00",
+                    "15:30",
+                    "17:00",
+                    "19:30",
+                    "21:00",
+                    "22:30",
+                  ].map((hour) => (
+                    <button
+                      key={hour}
+                      type="button"
+                      className={`hour-button ${selectedHour === hour ? "selected" : ""}`}
+                      onClick={() => handleHourClick(hour, setFieldValue)}
+                    >
+                      {hour}
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
@@ -164,9 +185,9 @@ const AppointmentForm = () => {
           </Form>
         )}
       </Formik>
-
     </section>
   );
 };
 
 export default AppointmentForm;
+
