@@ -434,9 +434,11 @@ def actualizar_reserva(request, pk, estado):
     reserva.estado = estado
     reserva.save()
 
-    if estado == "confirmada":
+    if reserva.estado == "confirmada":
         enviar_correo(reserva, 'emails/booking_confirmed_template.html', request)
-        return Response({'message': 'Su cita ha sido confirmada.'}, status=status.HTTP_200_OK)
+        return Response({'message': 'Su cita ha sido confirmada con éxito.'}, status=status.HTTP_200_OK)
+    elif reserva.estado == "cancelada":
+        return Response({'message': 'Su cita ha sido cancelada con éxito.'}, status=status.HTTP_200_OK)
 
     return Response({'message': 'Reserva actualizada exitosamente'}, status=status.HTTP_200_OK)
 
