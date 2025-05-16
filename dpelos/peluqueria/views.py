@@ -1,19 +1,17 @@
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from django.contrib.auth.models import Group
-from rest_framework.permissions import DjangoModelPermissions
+from rest_framework.permissions import DjangoModelPermissions, IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from django.contrib.auth.hashers import make_password
 from .models import Usuario, Especialista, Servicio, EspecialistaServicio, Reserva, Notificacion, InformacionNegocio, HorarioTrabajo
 from .serializers import UsuarioSerializer, GroupSerializer, EspecialistaSerializer, ServicioSerializer, EspecialistaServicioSerializer, ReservaSerializer, NotificacionSerializer, InformacionNegocioSerializer, HorarioTrabajoSerializer
-from django.contrib.auth.models import Group
 from django.utils.crypto import get_random_string
 from datetime import datetime, timedelta, date
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.conf import settings
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.utils.timezone import now
 from django.db.models import Q
 
@@ -249,30 +247,7 @@ class EspecialistaServicioViewSet(ModelViewSet):
 class ReservaViewSet(ModelViewSet):
     queryset = Reserva.objects.all()
     serializer_class = ReservaSerializer
-    permission_classes = [DjangoModelPermissions]
-
-    def get_permissions(self):
-        if self.action == 'create':
-            return [AllowAny()]
-        return super().get_permissions()
-    
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        usuario_id = self.request.query_params.get('usuario_id')
-        especialista_id = self.request.query_params.get('especialista_id')
-        fecha = self.request.query_params.get('fecha')
-        hora = self.request.query_params.get('hora')
-
-        if usuario_id:
-            queryset = queryset.filter(usuario_id=usuario_id)
-        if especialista_id:
-            queryset = queryset.filter(especialista_id=especialista_id)
-        if fecha:
-            queryset = queryset.filter(fecha=fecha)
-        if hora:
-            queryset = queryset.filter(hora=hora)
-
-        return queryset
+    permission_classes = [AllowAny]  # Permitir acceso público
 
     def create(self, request, *args, **kwargs):
         data = request.data.copy()
@@ -280,35 +255,27 @@ class ReservaViewSet(ModelViewSet):
         fecha = data.get('fecha')
         hora_str = data.get('hora')
         servicio_id = data.get('servicio_id')
-        clientEmail = data.get('clientEmail')
+        clientEmail = data.get('email')  # Usar el email del formulario
 
-        if not clientEmail:
-            usuario_id = data.get('usuario_id')
-            usuario = Usuario.objects.get(id=usuario_id)
-            data['clientEmail'] = usuario.email
+        if not (especialista_id and servicio_id and fecha and hora_str and clientEmail):
+            return Response({'error': 'Todos los campos son obligatorios.'}, status=400)
 
-        if not (especialista_id and servicio_id and fecha and hora_str):
-            return Response({'error': 'Se requiere especialista_id, servicio_id, fecha y hora'}, status=400)
+        data['clientEmail'] = clientEmail  # Guardar el email en la reserva
 
         try:
             servicio = Servicio.objects.get(id=servicio_id)
         except Servicio.DoesNotExist:
             return Response({'error': 'Servicio no válido'}, status=400)
         
-        # Convertir hora a objeto datetime
-        
         try:
             hora_inicio_nueva = datetime.strptime(hora_str, "%H:%M:%S")
         except ValueError:
             return Response({'error': 'Formato de hora inválido. Usa HH:MM:SS'}, status=400)
         
-        #validar si el servicio y especialistas estan activos
         especialista = Especialista.objects.get(id=especialista_id)
-        if(especialista.activo == False or servicio.activo ==False):
+        if not especialista.activo or not servicio.activo:
             return Response({'error': 'Especialista o Servicio no se encuentran activos'}, status=400)
-        
 
-        # Obtener duración del servicio
         duracion_servicio = servicio.duracion_estimada
         hora_fin_nueva = hora_inicio_nueva + timedelta(minutes=duracion_servicio)
 
@@ -317,7 +284,6 @@ class ReservaViewSet(ModelViewSet):
             fecha=fecha
         )
 
-        # Validar que no se superpongan reservas del mismo especialista
         for reserva in reservas_existentes:
             hora_inicio_existente = datetime.strptime(str(reserva.hora), "%H:%M:%S")
             duracion_existente = reserva.servicio_id.duracion_estimada
@@ -326,39 +292,45 @@ class ReservaViewSet(ModelViewSet):
             if hora_inicio_nueva < hora_fin_existente and hora_fin_nueva > hora_inicio_existente:
                 return Response({'error': 'El especialista ya tiene una reserva en ese intervalo de tiempo'}, status=400)
 
-        # Generar código de reserva único
         codigo = get_random_string(length=6)
         while Reserva.objects.filter(codigo_reserva=codigo).exists():
             codigo = get_random_string(length=6)
         data['codigo_reserva'] = codigo.upper()
 
+        # No asociar usuario autenticado
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
-        reserva = serializer.save()
+        reserva = serializer.save(usuario_id=None)
 
         locale.setlocale(locale.LC_TIME, 'es_ES.UTF-8')
-        week_day = reserva.fecha.strftime('%A').lower()
         
-        # Enviar correo al usuario
-        mailto = (
-            reserva.usuario_id.email
-            if reserva.usuario_id and reserva.usuario_id.email
-            else request.data.get('clientEmail')
-        )
+        
+
+# Justo antes de usar strftime
+        if isinstance(reserva.fecha, str):
+            reserva_fecha_obj = datetime.strptime(reserva.fecha, "%Y-%m-%d").date()
+        else:
+            reserva_fecha_obj = reserva.fecha
+
+        week_day = reserva_fecha_obj.strftime('%A').lower()
+       
+        
+        mailto = clientEmail  # Enviar al email del formulario
 
         try:
             subject = f'Confirmación de Reserva N° {reserva.codigo_reserva}'
             from_email = settings.DEFAULT_FROM_EMAIL
             to_email = [mailto]
             context = {
-                'usuario': reserva.usuario_id.__str__ if reserva.usuario_id else request.data.get('clientName'),
-                'especialista': reserva.especialista_id.__str__,
-                'servicio': reserva.servicio_id.nombre,
-                'fecha': reserva.fecha,
-                'hora': reserva.hora,
-                'codigo_reserva': reserva.codigo_reserva,
-                'dia_semana': week_day,
+                'usuario': str(data.get('nombre', '')),
+                'especialista': str(reserva.especialista_id) if reserva.especialista_id else '',
+                'servicio': str(reserva.servicio_id.nombre) if reserva.servicio_id and reserva.servicio_id.nombre else '',
+                'fecha': str(reserva.fecha) if reserva.fecha else '',
+                'hora': str(reserva.hora) if reserva.hora else '',
+                'codigo_reserva': str(reserva.codigo_reserva) if reserva.codigo_reserva else '',
+                'dia_semana': str(week_day) if week_day else '',
             }
+            
             html_content = render_to_string('emails/booking_template.html', context)
 
             message = EmailMultiAlternatives(
@@ -368,7 +340,6 @@ class ReservaViewSet(ModelViewSet):
                 to=to_email
             )
             message.attach_alternative(html_content, 'text/html')
-        
             message.send()
         except Exception as e:
             return Response({'error': f'Error al enviar el correo: {str(e)}'}, status=500)
@@ -381,7 +352,7 @@ class ReservaViewSet(ModelViewSet):
                 'hora': reserva.hora,
                 'estado': reserva.estado,
                 'codigo_reserva': reserva.codigo_reserva,
-                'usuario_id': reserva.usuario_id.id if reserva.usuario_id else None,
+                'clientEmail': reserva.clientEmail,
                 'especialista_id': reserva.especialista_id.id,
                 'servicio_id': reserva.servicio_id.id
             }
