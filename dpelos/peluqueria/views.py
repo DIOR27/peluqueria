@@ -247,20 +247,25 @@ class EspecialistaServicioViewSet(ModelViewSet):
 class ReservaViewSet(ModelViewSet):
     queryset = Reserva.objects.all()
     serializer_class = ReservaSerializer
-    permission_classes = [AllowAny]  # Permitir acceso público
+    permission_classes = [DjangoModelPermissions]
 
+    def get_permissions(self):
+        if self.action == 'create':
+            return [AllowAny()]
+        return super().get_permissions()
+            
     def create(self, request, *args, **kwargs):
         data = request.data.copy()
         especialista_id = data.get('especialista_id')
         fecha = data.get('fecha')
         hora_str = data.get('hora')
         servicio_id = data.get('servicio_id')
-        clientEmail = data.get('email')  # Usar el email del formulario
+        clientEmail = data.get('clientEmail')  
 
         if not (especialista_id and servicio_id and fecha and hora_str and clientEmail):
             return Response({'error': 'Todos los campos son obligatorios.'}, status=400)
 
-        data['clientEmail'] = clientEmail  # Guardar el email en la reserva
+        data['clientEmail'] = clientEmail  
 
         try:
             servicio = Servicio.objects.get(id=servicio_id)
