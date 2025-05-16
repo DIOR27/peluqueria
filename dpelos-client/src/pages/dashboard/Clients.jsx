@@ -12,9 +12,10 @@ export default function Clients() {
   const [selectedClient, setSelectedClient] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
 
-  const filteredClients = clients.filter(client =>
-    client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    client.email.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredClients = clients.filter(
+    (client) =>
+      client.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      client.email.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleClientClick = (client) => {
@@ -25,7 +26,12 @@ export default function Clients() {
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Clientes</h1>
+        <div className="relative">
+          <h1 className="text-2xl font-bold">Clientes</h1>
+          <div className="absolute top-0 -right-10 px-1 bg-amber-400 rounded text-xs font-bold">
+            BETA
+          </div>
+        </div>
       </div>
 
       <div className="flex gap-4 mb-6">
@@ -58,9 +64,18 @@ export default function Clients() {
             <div>
               <h3 className="text-lg font-medium">Información del Cliente</h3>
               <div className="mt-4 space-y-2">
-                <p><span className="font-medium">Email:</span> {selectedClient.email}</p>
-                <p><span className="font-medium">Teléfono:</span> {selectedClient.phone}</p>
-                <p><span className="font-medium">Última visita:</span> {selectedClient.lastVisit}</p>
+                <p>
+                  <span className="font-medium">Email:</span>{" "}
+                  {selectedClient.email}
+                </p>
+                <p>
+                  <span className="font-medium">Teléfono:</span>{" "}
+                  {selectedClient.phone}
+                </p>
+                <p>
+                  <span className="font-medium">Última visita:</span>{" "}
+                  {selectedClient.lastVisit}
+                </p>
               </div>
             </div>
 

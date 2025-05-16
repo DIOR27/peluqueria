@@ -30,6 +30,8 @@ export default function Select({
   isMulti,
   label,
   helperText,
+  onBlur,
+  ...rest
 }) {
   return (
     <div className="w-full">
@@ -39,6 +41,7 @@ export default function Select({
         </label>
       ) : null}
       <ReactSelect
+        {...rest}
         options={options}
         onChange={onChange}
         value={value} // {value: string, label: string}
@@ -47,6 +50,7 @@ export default function Select({
         isMulti={isMulti}
         styles={customStyles}
         isClearable={isClearable}
+        onBlur={onBlur}
       />
       {helperText ? (
         <p className="text-sm text-gray-500">{helperText}</p>

@@ -3,51 +3,109 @@ import { Form, Formik } from "formik";
 import FormInput from "../../ui/FormInput";
 import * as Yup from "yup";
 import FormSelect from "../../ui/FormSelect";
+import { useEffect } from "react";
+import useServiceStore from "../../../stores/serviceStore";
+import useSpecialistStore from "../../../stores/specialistStore";
+import useAppointmentStore from "../../../stores/appointmentStore";
+import FormChangeMonitor from "./FormChangeMonitor";
+
+const validationSchema = Yup.object({
+  service: Yup.string().required("El servicio es requerido"),
+  specialist: Yup.string().required("El especialista es requerido"),
+  date: Yup.string().required("La fecha es requerida"),
+  time: Yup.string().required("La hora es requerida"),
+  status: Yup.string().required("El estado es requerido"),
+});
 
 export default function EditAppointment({ onClose, appointment = null }) {
+  const {
+    getAppointmentDetails,
+    appointmentDetails,
+    availableTimeSlots,
+    getAvailableTimes,
+    updateAppointment,
+  } = useAppointmentStore();
+  const { services } = useServiceStore();
+  const { specialists } = useSpecialistStore();
+
   const initialValues = {
-    clientName: appointment?.clientName || "",
-    service: appointment?.service || "",
-    specialist: appointment?.specialist || "",
-    status: appointment?.status || "",
-    date: appointment?.date || new Date().toISOString().split("T")[0],
-    time: appointment?.time || "",
+    service: appointmentDetails?.servicio_id || "",
+    specialist: appointmentDetails?.especialista_id || "",
+    status: appointmentDetails?.estado || "",
+    date: appointmentDetails?.fecha || "",
+    time: appointmentDetails?.hora || "",
   };
 
-  const validationSchema = Yup.object({
-    clientName: Yup.string().required("El nombre del cliente es requerido"),
-    service: Yup.string().required("El servicio es requerido"),
-    specialist: Yup.string().required("El especialista es requerido"),
-    date: Yup.string().required("La fecha es requerida"),
-    time: Yup.string().required("La hora es requerida"),
-    status: Yup.string().required("El estado es requerido"),
-  });
+  useEffect(() => {
+    const getDetails = async () => {
+      if (appointment.id) {
+        const { id, fecha, servicio_id, especialista_id } = appointment;
+        await getAppointmentDetails(id);
+        await getAvailableTimes({ fecha, especialista_id, servicio_id });
+      }
+    };
 
-  const onSubmit = (values, { setSubmitting }) => {
-    setTimeout(() => {
-      alert(JSON.stringify(values, null, 2));
-      setSubmitting(false);
-    }, 400);
-    onClose();
+    getDetails();
+  }, [appointment]);
+
+  const onSubmit = async (values, { setSubmitting }) => {
+    const dataToSubmit = {
+      id: appointment.id,
+      codigo_reserva: appointment.codigo_reserva,
+      ...values,
+    };
+
+    const result = await updateAppointment(dataToSubmit);
+
+    if (result) {
+      onClose();
+    }
+    setSubmitting(false);
   };
 
-  const specialistsOptions = [
-    { value: "Carlos Rodríguez", label: "Carlos Rodríguez" },
-    { value: "Miguel Ángel", label: "Miguel Ángel" },
-    { value: "Daniel Torres", label: "Daniel Torres" },
-    { value: "Roberto Sánchez", label: "Roberto Sánchez" },
-  ];
-  const servicesOptions = [
-    { value: "Corte de cabello", label: "Corte de cabello" },
-    { value: "Afeitado tradicional", label: "Afeitado tradicional" },
-    { value: "Perfilado de barba", label: "Perfilado de barba" },
-    { value: "Coloración", label: "Coloración" },
+  const fetchAvailableSlots = async (values) => {
+    const {
+      date: fecha,
+      specialist: especialista_id,
+      service: servicio_id,
+    } = values;
+
+    await getAvailableTimes({ fecha, especialista_id, servicio_id });
+  };
+
+  const servicesOptions = services
+    ?.filter((service) => service.activo)
+    .map((service) => ({
+      value: service.id,
+      label: `${service.nombre} (${service.duracion_estimada} mins)`,
+    }));
+  const specialistsOptions = specialists
+    ?.filter((spec) => spec.activo)
+    .map((spec) => ({
+      value: spec.id,
+      label: `${spec.nombre} ${spec.apellido}`,
+    }));
+  const timeSlotsOptions = [
+    ...(availableTimeSlots || []).map((timeSlot) => ({
+      value: timeSlot,
+      label: timeSlot,
+    })),
+    // Add current appointment time if it exists and isn't in available slots
+    ...(appointmentDetails?.hora &&
+    !availableTimeSlots?.includes(appointmentDetails.hora)
+      ? [
+          {
+            value: appointmentDetails.hora,
+            label: appointmentDetails.hora,
+          },
+        ]
+      : []),
   ];
   const statusOptions = [
-    { value: "pending", label: "Pendiente" },
-    { value: "confirmed", label: "Confirmada" },
-    { value: "completed", label: "Completada" },
-    { value: "cancelled", label: "Cancelada" },
+    { value: "pendiente", label: "Pendiente" },
+    { value: "confirmada", label: "Confirmada" },
+    { value: "completada", label: "Completada" },
+    { value: "cancelada", label: "Cancelada" },
   ];
 
   return (
@@ -55,12 +113,12 @@ export default function EditAppointment({ onClose, appointment = null }) {
       initialValues={initialValues}
       validationSchema={validationSchema}
       onSubmit={onSubmit}
+      enableReinitialize
     >
       <Form>
-        <FormInput
-          label="Nombre del Cliente"
-          name="clientName"
-          placeholder="Ingresa el nombre del cliente"
+        <FormChangeMonitor
+          fieldsToWatch={["service", "specialist", "date"]}
+          onConditionMet={fetchAvailableSlots}
         />
         <div className="flex flex-col gap-4 mb-4">
           <FormSelect
@@ -87,7 +145,15 @@ export default function EditAppointment({ onClose, appointment = null }) {
         </div>
         <div className="grid grid-cols-2 gap-4">
           <FormInput label="Fecha" name="date" type="date" />
-          <FormInput label="Hora" name="time" type="time" />
+          {/* <FormInput label="Hora" name="time" type="time" /> */}
+          <FormSelect
+            label="Hora"
+            name="time"
+            options={timeSlotsOptions}
+            placeholder="Hora"
+            isClearable
+            hideSelectedOptions
+          />
         </div>
 
         <FormSelect

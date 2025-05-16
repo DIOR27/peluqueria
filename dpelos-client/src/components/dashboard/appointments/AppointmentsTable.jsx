@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, MoreVertical } from "lucide-react";
 import {
   Menu,
@@ -11,28 +11,24 @@ import AppointmentDetail from "./AppointmentDetail";
 import EditAppointment from "./EditAppointment";
 import { Button } from "../../ui/Button";
 import { Sheet } from "../../ui/Sheet";
+import useAppointmentStore from "../../../stores/appointmentStore";
+import useServiceStore from "../../../stores/serviceStore";
+import useSpecialistStore from "../../../stores/specialistStore";
+import { esFechaHoraPasada } from "../../../lib/utils";
 
 const statusColors = {
-  confirmed: "bg-green-100 text-green-800",
-  pending: "bg-yellow-100 text-yellow-800",
-  completed: "bg-blue-100 text-blue-800",
-  cancelled: "bg-red-100 text-red-800",
-};
-
-const statusLabels = {
-  confirmed: "Confirmada",
-  pending: "Pendiente",
-  completed: "Completada",
-  cancelled: "Cancelada",
+  confirmada: "bg-green-100 text-green-800",
+  pendiente: "bg-yellow-100 text-yellow-800",
+  completada: "bg-blue-100 text-blue-800",
+  cancelada: "bg-red-100 text-red-800",
 };
 
 const tableHeaders = [
-  "Cliente",
   "Servicio",
   "Especialista",
   "Fecha y Hora",
   "Estado",
-  "Precio",
+  "Código",
   "Acciones",
 ];
 
@@ -50,6 +46,11 @@ export default function AppointmentsTable({
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+  const { getAppointments, resetAppointmentDetails, updateAppointmentStatus } =
+    useAppointmentStore();
+  const { services } = useServiceStore();
+  const { specialists } = useSpecialistStore();
+  // const appointments = useAppointmentStore((state) => state.appointments);
 
   const handleRowClick = (appointment) => {
     setSelectedAppointment(appointment);
@@ -63,10 +64,19 @@ export default function AppointmentsTable({
     setIsEditing(true);
   };
 
+  useEffect(() => {
+    getAppointments();
+  }, [getAppointments]);
+
+  const getSpecialistNameById = (specialistId) => {
+    const specialist = specialists.find((spec) => spec.id === specialistId);
+    return specialist ? `${specialist.nombre} ${specialist.apellido}` : "";
+  };
+
   return (
     <>
-      <div className="bg-white rounded-lg shadow overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-200">
+      <div className="bg-white rounded-lg shadow overflow-scroll min-h-full flex-1 flex flex-col">
+        <table className="min-w-full divide-y divide-gray-200 min-h-full">
           <thead className="bg-gray-50">
             <tr>
               {tableHeaders.map((header) => (
@@ -87,37 +97,36 @@ export default function AppointmentsTable({
                 className="cursor-pointer hover:bg-gray-50"
               >
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">
-                    {appointment.clientName}
+                  <div className="text-sm text-gray-900">
+                    {services.find(
+                      (service) => service.id === appointment.servicio_id
+                    )?.nombre || ""}
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-900">
-                    {appointment.service}
+                    {getSpecialistNameById(appointment.especialista_id)}
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-900">
-                    {appointment.specialist}
-                  </div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">
-                    {new Date(appointment.date).toLocaleDateString()}{" "}
-                    {appointment.time}
+                    {appointment.fecha}
+                    {" | "}
+                    {appointment.hora}
                   </div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span
-                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColors[appointment.status]
-                      }`}
+                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full capitalize ${
+                      statusColors[appointment.estado]
+                    }`}
                   >
-                    {statusLabels[appointment.status]}
+                    {appointment.estado}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-900">
-                    ${appointment.price}
+                    {appointment.codigo_reserva}
                   </div>
                 </td>
                 <td
@@ -140,20 +149,54 @@ export default function AppointmentsTable({
                           Ver detalles
                         </button>
                       </MenuItem>
-                      <MenuItem className="w-[180px] px-4 py-2 cursor-pointer data-[focus]:bg-gray-100">
-                        <button
-                          className="text-left font-medium"
-                          onClick={() => handleEdit(appointment)}
-                        >
-                          Editar
-                        </button>
+                      <MenuItem className="w-[180px] px-4 py-2 data-[focus]:bg-gray-100">
+                        {!esFechaHoraPasada(
+                          appointment.fecha,
+                          appointment.hora
+                        ) ? (
+                          <button
+                            className="text-left font-medium cursor-pointer"
+                            onClick={() => handleEdit(appointment)}
+                          >
+                            Editar
+                          </button>
+                        ) : (
+                          <div className="text-gray-400" title="Cita pasada">
+                            Editar
+                          </div>
+                        )}
                       </MenuItem>
                       <MenuSeparator className="h-px bg-gray-200" />
-                      <MenuItem className="w-[180px] px-4 py-2 cursor-pointer data-[focus]:bg-gray-100">
-                        <button className="text-left font-medium text-red-500">
-                          Cancelar
-                        </button>
-                      </MenuItem>
+                      {!esFechaHoraPasada(
+                        appointment.fecha,
+                        appointment.hora
+                      ) && appointment.estado !== "cancelada" ? (
+                        <MenuItem className="w-[180px] px-4 py-2 cursor-pointer data-[focus]:bg-gray-100">
+                          <button
+                            className="text-left font-medium text-red-500"
+                            onClick={() =>
+                              updateAppointmentStatus(appointment, "cancelada")
+                            }
+                          >
+                            Cancelar
+                          </button>
+                        </MenuItem>
+                      ) : null}
+                      {esFechaHoraPasada(appointment.fecha, appointment.hora) &&
+                      !["cancelada", "completada"].includes(
+                        appointment.estado
+                      ) ? (
+                        <MenuItem className="w-[180px] px-4 py-2 cursor-pointer data-[focus]:bg-gray-100">
+                          <button
+                            className="text-left font-medium text-green-500"
+                            onClick={() =>
+                              updateAppointmentStatus(appointment, "completada")
+                            }
+                          >
+                            Completar
+                          </button>
+                        </MenuItem>
+                      ) : null}
                     </MenuItems>
                   </Menu>
                 </td>
@@ -162,7 +205,7 @@ export default function AppointmentsTable({
           </tbody>
         </table>
 
-        <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200">
+        <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 mt-auto">
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
@@ -193,6 +236,7 @@ export default function AppointmentsTable({
           setIsSheetOpen(false);
           setSelectedAppointment(null);
           setIsEditing(false);
+          resetAppointmentDetails();
         }}
         title={`Cita de ${selectedAppointment?.clientName}`}
       >
@@ -207,6 +251,7 @@ export default function AppointmentsTable({
             onClose={() => {
               setIsSheetOpen(false);
               setSelectedAppointment(null);
+              resetAppointmentDetails();
             }}
           />
         ) : null}
@@ -218,6 +263,7 @@ export default function AppointmentsTable({
               setIsEditing(false);
               setSelectedAppointment(null);
               setIsSheetOpen(false);
+              resetAppointmentDetails();
             }}
             appointment={selectedAppointment}
           />
