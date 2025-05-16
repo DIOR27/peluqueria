@@ -46,7 +46,8 @@ export default function AppointmentsTable({
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
-  const { getAppointments, resetAppointmentDetails } = useAppointmentStore();
+  const { getAppointments, resetAppointmentDetails, updateAppointmentStatus } =
+    useAppointmentStore();
   const { services } = useServiceStore();
   const { specialists } = useSpecialistStore();
   // const appointments = useAppointmentStore((state) => state.appointments);
@@ -171,7 +172,12 @@ export default function AppointmentsTable({
                         appointment.hora
                       ) && appointment.estado !== "cancelada" ? (
                         <MenuItem className="w-[180px] px-4 py-2 cursor-pointer data-[focus]:bg-gray-100">
-                          <button className="text-left font-medium text-red-500">
+                          <button
+                            className="text-left font-medium text-red-500"
+                            onClick={() =>
+                              updateAppointmentStatus(appointment, "cancelada")
+                            }
+                          >
                             Cancelar
                           </button>
                         </MenuItem>
@@ -181,7 +187,12 @@ export default function AppointmentsTable({
                         appointment.estado
                       ) ? (
                         <MenuItem className="w-[180px] px-4 py-2 cursor-pointer data-[focus]:bg-gray-100">
-                          <button className="text-left font-medium text-green-500">
+                          <button
+                            className="text-left font-medium text-green-500"
+                            onClick={() =>
+                              updateAppointmentStatus(appointment, "completada")
+                            }
+                          >
                             Completar
                           </button>
                         </MenuItem>

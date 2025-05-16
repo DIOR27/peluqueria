@@ -114,6 +114,30 @@ const useAppointmentStore = create((set) => ({
       console.error(error);
       return false;
     }
+  },
+  updateAppointmentStatus: async (data, status) => {
+    const {
+      id,
+      codigo_reserva,
+      especialista_id,
+      fecha,
+      hora,
+      servicio_id,
+    } = data;
+    try {
+      const response = await api.put(
+        `/reservas/${id}/`,
+        { codigo_reserva, especialista_id, fecha, hora, servicio_id, estado: status }
+      );
+      const updatedAppointmentData = response.data;
+      set((state) => ({
+        appointments: state.appointments
+          .map(apt => apt.id === updatedAppointmentData.id ? { ...updatedAppointmentData, stado: status } : apt)
+      }));
+    } catch (error) {
+      toast.error("Error al modificar la cita.");
+      console.error(error);
+    }
   }
 
 }));
