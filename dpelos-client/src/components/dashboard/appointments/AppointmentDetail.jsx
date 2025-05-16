@@ -1,17 +1,12 @@
+import { useEffect } from "react";
+import useAppointmentStore from "../../../stores/appointmentStore";
 import { Button } from "../../ui/Button";
 
 const statusColors = {
-  confirmed: "bg-green-100 text-green-800",
-  pending: "bg-yellow-100 text-yellow-800",
-  completed: "bg-blue-100 text-blue-800",
-  cancelled: "bg-red-100 text-red-800",
-};
-
-const statusLabels = {
-  confirmed: "Confirmada",
-  pending: "Pendiente",
-  completed: "Completada",
-  cancelled: "Cancelada",
+  confirmada: "bg-green-100 text-green-800",
+  pendiente: "bg-yellow-100 text-yellow-800",
+  completada: "bg-blue-100 text-blue-800",
+  cancelada: "bg-red-100 text-red-800",
 };
 
 export default function AppointmentDetail({
@@ -19,42 +14,53 @@ export default function AppointmentDetail({
   onClose,
   onEditClick,
 }) {
+  const { getAppointmentDetails, appointmentDetails } = useAppointmentStore();
+
+  useEffect(() => {
+    const getDetails = async () => {
+      if (appointment.id) {
+        await getAppointmentDetails(appointment.id);
+      }
+    };
+    getDetails();
+  }, []);
+
+  if (!appointmentDetails) {
+    return null;
+  }
+
+  const { servicio, especialista, fecha, hora, estado } = appointmentDetails;
+
   return (
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-medium">Información de la Cita</h3>
         <div className="mt-4 space-y-4">
           <div>
-            <h4 className="text-sm font-medium text-gray-500">Cliente</h4>
-            <p className="mt-1">{appointment.clientName}</p>
-          </div>
-          <div>
             <h4 className="text-sm font-medium text-gray-500">Servicio</h4>
-            <p className="mt-1">{appointment.service}</p>
+            <p className="mt-1">{servicio.nombre}</p>
           </div>
           <div>
             <h4 className="text-sm font-medium text-gray-500">Especialista</h4>
-            <p className="mt-1">{appointment.specialist}</p>
+            <p className="mt-1">{`${especialista.nombre} ${especialista.apellido}`}</p>
           </div>
           <div>
             <h4 className="text-sm font-medium text-gray-500">Fecha y Hora</h4>
             <p className="mt-1">
-              {new Date(appointment.date).toLocaleDateString()}{" "}
-              {appointment.time}
+              {new Date(fecha).toLocaleDateString()} a las {hora}
             </p>
           </div>
           <div>
             <h4 className="text-sm font-medium text-gray-500">Estado</h4>
             <span
-              className={`mt-1 px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColors[appointment.status]
-                }`}
+              className={`mt-1 px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColors[estado]} capitalize`}
             >
-              {statusLabels[appointment.status]}
+              {estado}
             </span>
           </div>
           <div>
             <h4 className="text-sm font-medium text-gray-500">Precio</h4>
-            <p className="mt-1">${appointment.price}</p>
+            <p className="mt-1">${servicio.precio}</p>
           </div>
         </div>
       </div>

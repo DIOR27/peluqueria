@@ -3,7 +3,7 @@ import { memo } from "react";
 import Select from "./Select";
 
 const FormSelect = memo((props) => {
-  const [field, meta] = useField(props);
+  const [field, meta, helpers] = useField(props);
   const { setFieldValue } = useFormikContext();
 
   // Asegurarnos de que el valor tenga el formato correcto para react-select
@@ -18,11 +18,12 @@ const FormSelect = memo((props) => {
         {...props}
         value={value}
         onChange={(selectedOption) => {
-          // field.onChange -> es usado mas para elementos nativos con event nativo
-          setFieldValue(
-            props.name,
-            selectedOption ? selectedOption.value : null
-          );
+          const newValue = selectedOption ? selectedOption.value : null;
+          setFieldValue(props.name, newValue);
+          helpers.setTouched(true);
+        }}
+        onBlur={() => {
+          helpers.setTouched(true);
         }}
       />
       {meta.touched && meta.error ? (
