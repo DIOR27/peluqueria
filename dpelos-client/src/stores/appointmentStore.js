@@ -16,8 +16,8 @@ const useAppointmentStore = create((set) => ({
   setFilters: (filters) => set({ filters }),
   getFilteredAppointments: (state) => {
     return state.appointments.filter(appointment => {
-      if (state.filters.status && appointment.status !== state.filters.status) return false;
-      if (state.filters.specialist && appointment.specialist !== state.filters.specialist) return false;
+      if (state.filters.status && appointment.estado !== state.filters.status) return false;
+      if (state.filters.specialist && appointment.especialista_id !== state.filters.specialist) return false;
       return true;
     });
   },
