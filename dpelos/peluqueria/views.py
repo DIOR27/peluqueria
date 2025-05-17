@@ -18,7 +18,7 @@ from django.db.models import Q
 import re
 import locale
 
-class GroupViewSet(ReadOnlyModelViewSet):  # solo permite listar y ver detalles
+class GroupViewSet(ReadOnlyModelViewSet): 
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
 
@@ -30,7 +30,7 @@ class UsuarioViewSet(ModelViewSet):
     def create(self, request, *args, **kwargs):
         data = request.data.copy()
 
-        # Asignar username como el email
+        
         email = data.get('email')
         data['username'] = email
         data['password'] = make_password(data['password'])
@@ -40,10 +40,10 @@ class UsuarioViewSet(ModelViewSet):
         usuario = serializer.save()
 
         try:
-            nombre_grupo = data.get('rol')  # se espera una cadena como "Cliente" o "Administrador"
+            nombre_grupo = data.get('rol')  
 
             if not nombre_grupo:
-                # Asignar grupo Cliente por defecto
+                
                 grupo_cliente = Group.objects.get(name="Cliente")
                 usuario.groups.add(grupo_cliente)
 
@@ -150,7 +150,7 @@ def user_info(request):
 class EspecialistaViewSet(ModelViewSet):
     queryset = Especialista.objects.all()
     serializer_class = EspecialistaSerializer
-    permission_classes = [DjangoModelPermissions]
+    permission_classes = [AllowAny]
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
@@ -173,7 +173,7 @@ def change_specialist_status(request, pk, set_active):
 class ServicioViewSet(ModelViewSet):
     queryset = Servicio.objects.all()
     serializer_class = ServicioSerializer
-    permission_classes = [DjangoModelPermissions]
+    permission_classes = [AllowAny]
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])

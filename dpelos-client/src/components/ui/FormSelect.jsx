@@ -2,33 +2,24 @@ import { useField, useFormikContext } from "formik";
 import { memo } from "react";
 import Select from "./Select";
 
-const FormSelect = memo((props) => {
-  const [field, meta, helpers] = useField(props);
-  const { setFieldValue } = useFormikContext();
-
-  // Asegurarnos de que el valor tenga el formato correcto para react-select
-  const value = field.value
-    ? props.options.find((option) => option.value === field.value)
-    : null;
+const FormSelect = memo(({ name, ...props }) => {
+  const [field, meta] = useField(name);
+  const { setFieldValue, setTouched } = useFormikContext();
 
   return (
     <div>
       <Select
-        {...field}
         {...props}
-        value={value}
-        onChange={(selectedOption) => {
-          const newValue = selectedOption ? selectedOption.value : null;
-          setFieldValue(props.name, newValue);
-          helpers.setTouched(true);
+        name={name}
+        value={field.value || null}
+        onChange={(option) => {
+          setFieldValue(name, option || null); 
         }}
-        onBlur={() => {
-          helpers.setTouched(true);
-        }}
+        onBlur={() => setTouched({ [name]: true })}
       />
-      {meta.touched && meta.error ? (
+      {meta.touched && meta.error && (
         <div className="error text-red-500 text-xs">{meta.error}</div>
-      ) : null}
+      )}
     </div>
   );
 });
