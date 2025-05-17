@@ -150,7 +150,7 @@ def user_info(request):
 class EspecialistaViewSet(ModelViewSet):
     queryset = Especialista.objects.all()
     serializer_class = EspecialistaSerializer
-    permission_classes = [DjangoModelPermissions]
+    permission_classes = [AllowAny]
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
@@ -173,7 +173,7 @@ def change_specialist_status(request, pk, set_active):
 class ServicioViewSet(ModelViewSet):
     queryset = Servicio.objects.all()
     serializer_class = ServicioSerializer
-    permission_classes = [DjangoModelPermissions]
+    permission_classes = [AllowAny]
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
