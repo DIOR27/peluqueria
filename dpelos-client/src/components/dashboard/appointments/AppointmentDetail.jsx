@@ -3,19 +3,12 @@ import useAppointmentStore from "../../../stores/appointmentStore";
 import { Button } from "../../ui/Button";
 import { esFechaHoraPasada } from "../../../lib/utils";
 
-const statusColors = {
-  confirmada: "bg-green-100 text-green-800",
-  pendiente: "bg-yellow-100 text-yellow-800",
-  completada: "bg-blue-100 text-blue-800",
-  cancelada: "bg-red-100 text-red-800",
-};
-
 export default function AppointmentDetail({
   appointment,
   onClose,
   onEditClick,
 }) {
-  const { getAppointmentDetails, appointmentDetails } = useAppointmentStore();
+  const { getAppointmentDetails, appointmentDetails, statusColors } = useAppointmentStore();
 
   useEffect(() => {
     const getDetails = async () => {
@@ -24,6 +17,7 @@ export default function AppointmentDetail({
       }
     };
     getDetails();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   if (!appointmentDetails) {

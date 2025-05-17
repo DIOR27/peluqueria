@@ -8,6 +8,7 @@ import useServiceStore from "../../../stores/serviceStore";
 import useSpecialistStore from "../../../stores/specialistStore";
 import useAppointmentStore from "../../../stores/appointmentStore";
 import FormChangeMonitor from "./FormChangeMonitor";
+import { getSpecialistsOptions } from "../../../lib/utils";
 
 const validationSchema = Yup.object({
   service: Yup.string().required("El servicio es requerido"),
@@ -24,6 +25,7 @@ export default function EditAppointment({ onClose, appointment = null }) {
     availableTimeSlots,
     getAvailableTimes,
     updateAppointment,
+    statusOptions
   } = useAppointmentStore();
   const { services } = useServiceStore();
   const { specialists } = useSpecialistStore();
@@ -46,6 +48,7 @@ export default function EditAppointment({ onClose, appointment = null }) {
     };
 
     getDetails();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appointment]);
 
   const onSubmit = async (values, { setSubmitting }) => {
@@ -79,12 +82,6 @@ export default function EditAppointment({ onClose, appointment = null }) {
       value: service.id,
       label: `${service.nombre} (${service.duracion_estimada} mins)`,
     }));
-  const specialistsOptions = specialists
-    ?.filter((spec) => spec.activo)
-    .map((spec) => ({
-      value: spec.id,
-      label: `${spec.nombre} ${spec.apellido}`,
-    }));
   const timeSlotsOptions = [
     ...(availableTimeSlots || []).map((timeSlot) => ({
       value: timeSlot,
@@ -92,20 +89,14 @@ export default function EditAppointment({ onClose, appointment = null }) {
     })),
     // Add current appointment time if it exists and isn't in available slots
     ...(appointmentDetails?.hora &&
-    !availableTimeSlots?.includes(appointmentDetails.hora)
+      !availableTimeSlots?.includes(appointmentDetails.hora)
       ? [
-          {
-            value: appointmentDetails.hora,
-            label: appointmentDetails.hora,
-          },
-        ]
+        {
+          value: appointmentDetails.hora,
+          label: appointmentDetails.hora,
+        },
+      ]
       : []),
-  ];
-  const statusOptions = [
-    { value: "pendiente", label: "Pendiente" },
-    { value: "confirmada", label: "Confirmada" },
-    { value: "completada", label: "Completada" },
-    { value: "cancelada", label: "Cancelada" },
   ];
 
   return (
@@ -115,65 +106,67 @@ export default function EditAppointment({ onClose, appointment = null }) {
       onSubmit={onSubmit}
       enableReinitialize
     >
-      <Form>
-        <FormChangeMonitor
-          fieldsToWatch={["service", "specialist", "date"]}
-          onConditionMet={fetchAvailableSlots}
-        />
-        <div className="flex flex-col gap-4 mb-4">
+      {({ isSubmitting, values, setFieldValue }) => (
+        <Form>
+          <FormChangeMonitor
+            fieldsToWatch={["service", "specialist", "date"]}
+            onConditionMet={fetchAvailableSlots}
+          />
+          <div className="flex flex-col gap-4 mb-4">
+            <FormSelect
+              label="Servicio"
+              name="service"
+              options={servicesOptions}
+              placeholder="Selecciona un servicio"
+              onValueChange={() => {
+                setFieldValue("specialist", null);
+              }}
+              isClearable
+            />
+
+            <FormSelect
+              label="Especialista"
+              name="specialist"
+              options={getSpecialistsOptions(values.service, specialists)}
+              placeholder="Selecciona un especialista"
+              isClearable
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <FormInput label="Fecha" name="date" type="date" />
+            {/* <FormInput label="Hora" name="time" type="time" /> */}
+            <FormSelect
+              label="Hora"
+              name="time"
+              options={timeSlotsOptions}
+              placeholder="Hora"
+              isClearable
+              hideSelectedOptions
+            />
+          </div>
+
           <FormSelect
-            label="Servicio"
-            name="service"
-            options={servicesOptions}
-            placeholder="Selecciona un servicio"
-            value={servicesOptions.find(
-              (service) => service.value === appointment?.service
+            label="Estado"
+            name="status"
+            options={statusOptions}
+            placeholder="Selecciona un estado"
+            value={statusOptions.find(
+              (status) => status.value === appointment?.status
             )}
             isClearable
           />
 
-          <FormSelect
-            label="Especialista"
-            name="specialist"
-            options={specialistsOptions}
-            placeholder="Selecciona un especialista"
-            value={specialistsOptions.find(
-              (specialist) => specialist.value === appointment?.specialist
-            )}
-            isClearable
-          />
-        </div>
-        <div className="grid grid-cols-2 gap-4">
-          <FormInput label="Fecha" name="date" type="date" />
-          {/* <FormInput label="Hora" name="time" type="time" /> */}
-          <FormSelect
-            label="Hora"
-            name="time"
-            options={timeSlotsOptions}
-            placeholder="Hora"
-            isClearable
-            hideSelectedOptions
-          />
-        </div>
-
-        <FormSelect
-          label="Estado"
-          name="status"
-          options={statusOptions}
-          placeholder="Selecciona un estado"
-          value={statusOptions.find(
-            (status) => status.value === appointment?.status
-          )}
-          isClearable
-        />
-
-        <div className="flex justify-end gap-2 mt-8">
-          <Button type="button" variant="outline" onClick={onClose}>
-            Cancelar
-          </Button>
-          <Button type="submit">Actualizar</Button>
-        </div>
-      </Form>
+          <div className="flex justify-end gap-2 mt-8">
+            <Button type="button" variant="outline" onClick={onClose}>
+              Cancelar
+            </Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Enviando" : "Actualizar"}
+            </Button>
+          </div>
+        </Form>
+      )}
     </Formik>
   );
 }
+

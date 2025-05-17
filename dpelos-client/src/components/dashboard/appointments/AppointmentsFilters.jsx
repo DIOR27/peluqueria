@@ -3,7 +3,7 @@ import useSpecialistStore from "../../../stores/specialistStore";
 import Select from "../../ui/Select";
 
 export default function AppointmentsFilters({ setCurrentPage }) {
-  const { filters, setFilters } = useAppointmentStore();
+  const { filters, setFilters, statusOptions } = useAppointmentStore();
   const { specialists } = useSpecialistStore();
 
   const handleFilterChange = (value, name) => {
@@ -11,12 +11,6 @@ export default function AppointmentsFilters({ setCurrentPage }) {
     setCurrentPage(1);
   };
 
-  const statusOptions = [
-    { value: "confirmada", label: "Confirmada" },
-    { value: "pendiente", label: "Pendiente" },
-    { value: "completada", label: "Completada" },
-    { value: "cancelada", label: "Cancelada" },
-  ];
   const specialistOptions = specialists.map((spec) => ({
     value: spec.id,
     label: `${spec.nombre} ${spec.apellido}`,

@@ -20,19 +20,15 @@ export default function FormChangeMonitor({ fieldsToWatch, onConditionMet }) {
       (field) => values[field] !== initialValues[field]
     );
 
+    if (allFieldsHaveValues) {
+      onConditionMet(values);
+    }
+
     if (hasChanged) {
       resetTimeSlots();
-      setFieldValue("time", "");
-      // Si no todos los campos tienen valores, reseteamos el campo time
-      // if (!allFieldsHaveValues) {
-      // setFieldValue("time", "");
-      // }
-
-      if (allFieldsHaveValues) {
-        onConditionMet(values);
-      }
-      // Llamamos a onConditionMet en cualquier caso
+      setFieldValue("time", null);
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [...fieldsToWatch.map((field) => values[field])]);
 

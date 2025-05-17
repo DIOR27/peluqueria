@@ -16,13 +16,6 @@ import useServiceStore from "../../../stores/serviceStore";
 import useSpecialistStore from "../../../stores/specialistStore";
 import { esFechaHoraPasada } from "../../../lib/utils";
 
-const statusColors = {
-  confirmada: "bg-green-100 text-green-800",
-  pendiente: "bg-yellow-100 text-yellow-800",
-  completada: "bg-blue-100 text-blue-800",
-  cancelada: "bg-red-100 text-red-800",
-};
-
 const tableHeaders = [
   "Servicio",
   "Especialista",
@@ -46,7 +39,7 @@ export default function AppointmentsTable({
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
-  const { getAppointments, resetAppointmentDetails, updateAppointmentStatus } =
+  const { getAppointments, resetAppointmentDetails, updateAppointmentStatus, statusColors } =
     useAppointmentStore();
   const { services } = useServiceStore();
   const { specialists } = useSpecialistStore();
@@ -117,9 +110,8 @@ export default function AppointmentsTable({
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <span
-                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full capitalize ${
-                      statusColors[appointment.estado]
-                    }`}
+                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full capitalize ${statusColors[appointment.estado]
+                      }`}
                   >
                     {appointment.estado}
                   </span>
@@ -175,7 +167,7 @@ export default function AppointmentsTable({
                           <button
                             className="text-left font-medium text-red-500"
                             onClick={() =>
-                              updateAppointmentStatus(appointment, "cancelada")
+                              updateAppointmentStatus({ id: appointment.id, status: "cancelada" })
                             }
                           >
                             Cancelar
@@ -183,14 +175,14 @@ export default function AppointmentsTable({
                         </MenuItem>
                       ) : null}
                       {esFechaHoraPasada(appointment.fecha, appointment.hora) &&
-                      !["cancelada", "completada"].includes(
-                        appointment.estado
-                      ) ? (
+                        !["cancelada", "completada"].includes(
+                          appointment.estado
+                        ) ? (
                         <MenuItem className="w-[180px] px-4 py-2 cursor-pointer data-[focus]:bg-gray-100">
                           <button
                             className="text-left font-medium text-green-500"
                             onClick={() =>
-                              updateAppointmentStatus(appointment, "completada")
+                              updateAppointmentStatus({ id: appointment.id, status: "completada" })
                             }
                           >
                             Completar
@@ -238,7 +230,7 @@ export default function AppointmentsTable({
           setIsEditing(false);
           resetAppointmentDetails();
         }}
-        title={`Cita de ${selectedAppointment?.clientName}`}
+        title={`${isEditing ? "Editar Cita" : "Nueva Cita"}`}
       >
         {selectedAppointment && !isEditing ? (
           <AppointmentDetail
