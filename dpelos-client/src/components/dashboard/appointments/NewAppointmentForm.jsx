@@ -9,6 +9,7 @@ import useServiceStore from "../../../stores/serviceStore";
 import useSpecialistStore from "../../../stores/specialistStore";
 import { useEffect } from "react";
 import useAppointmentStore from "../../../stores/appointmentStore";
+import { getSpecialistsOptions } from "../../../lib/utils";
 
 export default function AppointmentForm({
   isOpen,
@@ -54,12 +55,6 @@ export default function AppointmentForm({
       value: service.id,
       label: `${service.nombre} (${service.duracion_estimada} mins)`,
     }));
-  const specialistsOptions = specialists
-    ?.filter((spec) => spec.activo)
-    .map((spec) => ({
-      value: spec.id,
-      label: `${spec.nombre} ${spec.apellido}`,
-    }));
   const timeSlotsOptions = availableTimeSlots?.map((timeSlot) => ({
     value: timeSlot,
     label: timeSlot,
@@ -93,8 +88,9 @@ export default function AppointmentForm({
         initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={onSubmit}
+
       >
-        {({ isSubmitting }) => (
+        {({ isSubmitting, values, setFieldValue }) => (
           <Form>
             <FormChangeMonitor
               fieldsToWatch={["service", "specialist", "date"]}
@@ -117,12 +113,15 @@ export default function AppointmentForm({
                 options={servicesOptions}
                 placeholder="Selecciona un servicio"
                 isClearable
+                onValueChange={() => {
+                  setFieldValue("specialist", null);
+                }}
               />
 
               <FormSelect
                 label="Especialista"
                 name="specialist"
-                options={specialistsOptions}
+                options={getSpecialistsOptions(values.service, specialists)}
                 placeholder="Selecciona un especialista"
                 isClearable
               />

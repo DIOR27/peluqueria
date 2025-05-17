@@ -13,13 +13,25 @@ const useAppointmentStore = create((set) => ({
     specialist: ''
   },
   availableTimeSlots: [],
+  statusOptions: [
+    { value: "pendiente", label: "Pendiente" },
+    { value: "confirmada", label: "Confirmada" },
+    { value: "completada", label: "Completada" },
+    { value: "cancelada", label: "Cancelada" },
+  ],
+  statusColors: {
+    confirmada: "bg-green-100 text-green-800",
+    pendiente: "bg-yellow-100 text-yellow-800",
+    completada: "bg-blue-100 text-blue-800",
+    cancelada: "bg-red-100 text-red-800",
+  },
   setFilters: (filters) => set({ filters }),
   getFilteredAppointments: (state) => {
     return state.appointments.filter(appointment => {
       if (state.filters.status && appointment.estado !== state.filters.status) return false;
       if (state.filters.specialist && appointment.especialista_id !== state.filters.specialist) return false;
       return true;
-    });
+    }).sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
   },
   resetTimeSlots: () => set({ availableTimeSlots: [] }),
   resetAppointmentDetails: () => set({ appointmentDetails: null }),
@@ -40,7 +52,32 @@ const useAppointmentStore = create((set) => ({
         '/reservas/horarios_disponibles/',
         { fecha, especialista_id, servicio_id }
       );
-      set({ availableTimeSlots: response?.data || [] });
+
+      let availableTimeSlots = response?.data || [];
+
+      // Verificamos si la fecha seleccionada es hoy
+      const today = new Date();
+      const todayString = today.toISOString().split('T')[0]; // Formato YYYY-MM-DD
+
+      const isToday = fecha === todayString;
+
+      // Si es hoy, filtramos los horarios para que sean posteriores a la hora actual + 1 hora
+      if (isToday) {
+        // Calcular la hora actual + 1 hora de buffer
+        const bufferTime = new Date();
+        bufferTime.setHours(bufferTime.getHours() + 1);
+
+        // Filtramos los horarios
+        availableTimeSlots = availableTimeSlots.filter(horaString => {
+          // Creamos una fecha combinando la fecha seleccionada con la hora del slot
+          const fechaHoraString = `${fecha}T${horaString}`;
+          const fechaHora = new Date(fechaHoraString);
+
+          return fechaHora >= bufferTime;
+        });
+      }
+
+      set({ availableTimeSlots });
     } catch (error) {
       const message = error?.response?.data?.error || "Error al obtener horas disponibles";
       toast.error(message);
@@ -115,24 +152,14 @@ const useAppointmentStore = create((set) => ({
       return false;
     }
   },
-  updateAppointmentStatus: async (data, status) => {
-    const {
-      id,
-      codigo_reserva,
-      especialista_id,
-      fecha,
-      hora,
-      servicio_id,
-    } = data;
+  updateAppointmentStatus: async (data) => {
+    const { id, status } = data;
+
     try {
-      const response = await api.put(
-        `/reservas/${id}/`,
-        { codigo_reserva, especialista_id, fecha, hora, servicio_id, estado: status }
-      );
-      const updatedAppointmentData = response.data;
+      await api.put(`/reservas/actualizar/${id}/${status}/`);
       set((state) => ({
         appointments: state.appointments
-          .map(apt => apt.id === updatedAppointmentData.id ? { ...updatedAppointmentData, stado: status } : apt)
+          .map(appointment => appointment.id === id ? { ...appointment, estado: status } : appointment)
       }));
     } catch (error) {
       toast.error("Error al modificar la cita.");
