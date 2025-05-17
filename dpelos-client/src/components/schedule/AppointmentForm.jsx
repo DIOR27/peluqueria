@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import FormInput from "../ui/FormInput";
@@ -6,23 +6,9 @@ import FormSelect from "../ui/FormSelect";
 import "./AppointmentForm.css";
 import dpelosn from "../../assets/dpelosn.svg";
 
-const servicesOptions = [
-  { value: "1", label: "Corte de cabello" },
-  { value: "2", label: "Afeitado tradicional" },
-  { value: "3", label: "Perfilado de barba" },
-  { value: "4", label: "Coloración" },
-];
-
-const specialistsOptions = [
-  { value: "1", label: "Carlos Rodríguez" },
-  { value: "2", label: "Miguel Ángel" },
-  { value: "3", label: "Daniel Torres" },
-  { value: "4", label: "Roberto Sánchez" },
-];
-
 const initialValues = {
-  servicio: "",
-  especialista: "",
+  servicio: null,
+  especialista: null,
   fecha: "",
   hora: "",
   nombre: "",
@@ -32,22 +18,68 @@ const initialValues = {
 };
 
 const validationSchema = Yup.object({
-  servicio: Yup.string().required("El servicio es requerido"),
-  especialista: Yup.string().required("El especialista es requerido"),
+  servicio: Yup.object()
+    .shape({
+      label: Yup.string().required("Seleccione un servicio"),
+      value: Yup.string().required("Seleccione un servicio"),
+    })
+    .nullable()
+    .required("El servicio es requerido"),
+
+  especialista: Yup.object()
+    .shape({
+      label: Yup.string().required("Seleccione un especialista"),
+      value: Yup.string().required("Seleccione un especialista"),
+    })
+    .nullable()
+    .required("El especialista es requerido"),
+
   fecha: Yup.string().required("La fecha es requerida"),
   hora: Yup.string().required("La hora es requerida"),
   nombre: Yup.string().required("El nombre es requerido"),
   apellido: Yup.string().required("El apellido es requerido"),
-  email: Yup.string()
-    .email("Formato de email inválido")
-    .required("El email es requerido"),
-  telefono: Yup.string()
-    .matches(/^\d+$/, "Formato de teléfono inválido")
-    .required("El teléfono es requerido"),
+  email: Yup.string().email("Correo inválido").required("El correo es requerido"),
+  telefono: Yup.string().required("El teléfono es requerido"),
 });
 
 const AppointmentForm = () => {
   const [selectedHour, setSelectedHour] = useState(null);
+  const [servicesOptions, setServicesOptions] = useState([]);
+  const [specialistsOptions, setSpecialistsOptions] = useState([]);
+
+  useEffect(() => {
+    console.log("API Base URL:", import.meta.env.VITE_API_BASE_URL);
+
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/servicios/`)
+      .then((res) => {
+        console.log("Servicios response status:", res.status);
+        return res.json();
+      })
+      .then((data) => {
+        console.log("Servicios data:", data);
+        const options = data.map((service) => ({
+          value: service.id.toString(),
+          label: service.nombre,
+        }));
+        setServicesOptions(options);
+      })
+      .catch((error) => console.error("Error cargando servicios:", error));
+
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/especialistas/`)
+      .then((res) => {
+        console.log("Especialistas response status:", res.status);
+        return res.json();
+      })
+      .then((data) => {
+        console.log("Especialistas data:", data);
+        const options = data.map((specialist) => ({
+          value: specialist.id.toString(),
+          label: `${specialist.nombre} ${specialist.apellido}`,
+        }));
+        setSpecialistsOptions(options);
+      })
+      .catch((error) => console.error("Error cargando especialistas:", error));
+  }, []);
 
   const handleHourClick = (hour, setFieldValue) => {
     setSelectedHour(hour);
@@ -56,12 +88,11 @@ const AppointmentForm = () => {
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
-      
       const fechaObj = new Date(values.fecha);
-      const fechaFormateada = fechaObj.toISOString().split('T')[0];
+      const fechaFormateada = fechaObj.toISOString().split("T")[0];
 
-      
-      const horaFormateada = values.hora.length === 5 ? values.hora + ':00' : values.hora;
+      const horaFormateada =
+        values.hora.length === 5 ? values.hora + ":00" : values.hora;
 
       const response = await fetch(
         `${import.meta.env.VITE_API_BASE_URL}/reservas/`,
@@ -71,8 +102,8 @@ const AppointmentForm = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            especialista_id: values.especialista,
-            servicio_id: values.servicio,
+            especialista_id: values.especialista.value,
+            servicio_id: values.servicio.value,
             fecha: fechaFormateada,
             hora: horaFormateada,
             clientEmail: values.email,
@@ -190,4 +221,3 @@ const AppointmentForm = () => {
 };
 
 export default AppointmentForm;
-
