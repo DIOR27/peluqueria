@@ -21,6 +21,9 @@ const FormSelect = memo((props) => {
           const newValue = selectedOption ? selectedOption.value : null;
           setFieldValue(props.name, newValue);
           helpers.setTouched(true);
+          if(typeof props.onValueChange === 'function') {
+           props.onValueChange(selectedOption);
+        }
         }}
         onBlur={() => {
           helpers.setTouched(true);
