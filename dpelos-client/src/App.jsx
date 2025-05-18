@@ -8,7 +8,7 @@ import Page from "./pages/dashboard/Page";
 import Clients from "./pages/dashboard/Clients";
 import Services from "./pages/dashboard/Services";
 import Specialists from "./pages/dashboard/Specialists";
-import Schedule from "./pages/schedule";
+import Schedule from "./pages/Schedule";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Profile from "./pages/dashboard/Profile";
