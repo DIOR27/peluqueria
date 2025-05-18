@@ -150,7 +150,18 @@ def user_info(request):
 class EspecialistaViewSet(ModelViewSet):
     queryset = Especialista.objects.all()
     serializer_class = EspecialistaSerializer
-    permission_classes = [AllowAny]
+
+    def get_permissions(self):
+        if self.request.method in ['GET', 'HEAD', 'OPTIONS']:
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+
+    def update(self, request, *args, **kwargs):
+        if not request.user.is_staff:
+            return Response({'error': 'No tienes permiso para actualizar especialistas.'}, status=403)
+        return super().update(request, *args, **kwargs)
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
@@ -173,7 +184,18 @@ def change_specialist_status(request, pk, set_active):
 class ServicioViewSet(ModelViewSet):
     queryset = Servicio.objects.all()
     serializer_class = ServicioSerializer
-    permission_classes = [AllowAny]
+
+    def get_permissions(self):
+        if self.request.method in ['GET', 'HEAD', 'OPTIONS']:
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAuthenticated]
+        return [permission() for permission in permission_classes]
+
+    def update(self, request, *args, **kwargs):
+        if not request.user.is_staff:
+            return Response({'error': 'No tienes permiso para actualizar servicios.'}, status=403)
+        return super().update(request, *args, **kwargs)
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])

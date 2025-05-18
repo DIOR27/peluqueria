@@ -48,7 +48,6 @@ const AppointmentForm = () => {
   const [specialistsOptions, setSpecialistsOptions] = useState([]);
 
   useEffect(() => {
-    console.log("API Base URL:", import.meta.env.VITE_API_BASE_URL);
 
     fetch(`${import.meta.env.VITE_API_BASE_URL}/servicios/`)
       .then((res) => {

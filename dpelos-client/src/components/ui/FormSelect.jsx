@@ -9,13 +9,19 @@ const FormSelect = memo(({ name, ...props }) => {
   return (
     <div>
       <Select
+        {...field}
         {...props}
         name={name}
         value={field.value || null}
         onChange={(option) => {
+            if (typeof props.onValueChange === 'function') {
+              props.onValueChange(selectedOption);
+            }
           setFieldValue(name, option || null); 
         }}
-        onBlur={() => setTouched({ [name]: true })}
+        onBlur={() => {
+          helpers.setTouched(true);
+        }}
       />
       {meta.touched && meta.error && (
         <div className="error text-red-500 text-xs">{meta.error}</div>

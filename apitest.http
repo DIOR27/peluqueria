@@ -9,11 +9,9 @@ Content-Type: application/json
 
 ### Obtener servicios
 GET http://127.0.0.1:8000/api/servicios/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ3NDc5OTMzLCJpYXQiOjE3NDc0NzYzMzMsImp0aSI6IjMxMzkxNTM1YWYwMjQ5MTQ5NDhiMjkwODFjZGRmMmJiIiwidXNlcl9pZCI6MX0.9NPvK6ylVT5GI1rB5UAGj2e3IAgXOStQrX6aNvdlvDE
 
 ### Obtener especialistas
 GET http://127.0.0.1:8000/api/especialistas/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ3NDc5OTMzLCJpYXQiOjE3NDc0NzYzMzMsImp0aSI6IjMxMzkxNTM1YWYwMjQ5MTQ5NDhiMjkwODFjZGRmMmJiIiwidXNlcl9pZCI6MX0.9NPvK6ylVT5GI1rB5UAGj2e3IAgXOStQrX6aNvdlvDE
 
 ### Consultar horas disponibles
 POST http://127.0.0.1:8000/api/reservas/horarios_disponibles/
@@ -83,3 +81,26 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 ### Obtener reserva por código
 GET http://localhost:8000/api/reservas/codigo/OJGIX6/
 Accept: application/json
+
+### Actualizar servicios
+PUT http://127.0.0.1:8000/api/servicios/5/
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ3NTI4Mjk5LCJpYXQiOjE3NDc1MjQ2OTksImp0aSI6IjlkNjNmNjdkZmU2MzQ3Zjg5Y2VhNmE3M2NlZTEwYmFmIiwidXNlcl9pZCI6MX0.oykFYYoS0mGBqSBUzxT2KIOMeemEi7NHEcHw5ZNoa6c
+
+{
+  "nombre": "Corte de cabello",
+  "duracion_estimada": 30,
+  "precio": 25.00,         
+  "activo": true
+}
+
+### Actualizar especialista
+PUT http://127.0.0.1:8000/api/especialistas/6/
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ3NTI4Mjk5LCJpYXQiOjE3NDc1MjQ2OTksImp0aSI6IjlkNjNmNjdkZmU2MzQ3Zjg5Y2VhNmE3M2NlZTEwYmFmIiwidXNlcl9pZCI6MX0.oykFYYoS0mGBqSBUzxT2KIOMeemEi7NHEcHw5ZNoa6c
+
+{
+  "nombre": "Carlos",
+  "apellido": "Rodríguez",
+  "activo": true
+}
