@@ -1,0 +1,106 @@
+### Obtener token JWT
+POST http://127.0.0.1:8000/api/token/
+Content-Type: application/json
+
+{
+  "username": "Sinon",
+  "password": "Konomisuzuki123"
+}
+
+### Obtener servicios
+GET http://127.0.0.1:8000/api/servicios/
+
+### Obtener especialistas
+GET http://127.0.0.1:8000/api/especialistas/
+
+### Consultar horas disponibles
+POST http://127.0.0.1:8000/api/reservas/horarios_disponibles/
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ3NDc5OTMzLCJpYXQiOjE3NDc0NzYzMzMsImp0aSI6IjMxMzkxNTM1YWYwMjQ5MTQ5NDhiMjkwODFjZGRmMmJiIiwidXNlcl9pZCI6MX0.9NPvK6ylVT5GI1rB5UAGj2e3IAgXOStQrX6aNvdlvDE
+
+{
+  "fecha": "2025-05-20",
+  "servicio_id": 7,
+  "especialista_id": 6
+}
+
+### Crear reserva
+POST http://127.0.0.1:8000/api/reservas/
+Content-Type: application/json
+
+
+{
+  "nombre": "Juan Daniel",
+  "servicio_id": 1,
+  "especialista_id": 1,
+  "fecha": "2025-07-01",
+  "hora": "10:30:00",
+  "clientEmail": "juaneskfire@gmail.com",
+  "telefono": "0999999999"
+}
+
+### Obtener reservas
+GET http://127.0.0.1:8000/api/reservas/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ3NDc5OTMzLCJpYXQiOjE3NDc0NzYzMzMsImp0aSI6IjMxMzkxNTM1YWYwMjQ5MTQ5NDhiMjkwODFjZGRmMmJiIiwidXNlcl9pZCI6MX0.9NPvK6ylVT5GI1rB5UAGj2e3IAgXOStQrX6aNvdlvDE
+
+### Crear servicio
+POST http://127.0.0.1:8000/api/servicios/
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ3NDUxMzM2LCJpYXQiOjE3NDc0NDc3MzYsImp0aSI6ImU3NjRkNDM5OWExMTQ0MDM5ZjQ2ZjJhYWYwYjIyMTJiIiwidXNlcl9pZCI6MX0.9xTamFDN6I5VDIZC13mm9L7l-T-hxw6ZLF4K--kdPsI
+
+{
+  "nombre": "Coloración",
+  "duracion_estimada": 30,
+  "precio": 25.00,         
+  "activo": true
+}
+
+### Crear especialista
+POST http://127.0.0.1:8000/api/especialistas/
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ3NDUxMzM2LCJpYXQiOjE3NDc0NDc3MzYsImp0aSI6ImU3NjRkNDM5OWExMTQ0MDM5ZjQ2ZjJhYWYwYjIyMTJiIiwidXNlcl9pZCI6MX0.9xTamFDN6I5VDIZC13mm9L7l-T-hxw6ZLF4K--kdPsI
+
+{
+  "nombre": "Roberto",
+  "apellido": "Sánchez",
+  "activo": true
+}
+
+### Eliminar reserva
+DELETE http://127.0.0.1:8000/api/reservas/30/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ3NDUxMzM2LCJpYXQiOjE3NDc0NDc3MzYsImp0aSI6ImU3NjRkNDM5OWExMTQ0MDM5ZjQ2ZjJhYWYwYjIyMTJiIiwidXNlcl9pZCI6MX0.9xTamFDN6I5VDIZC13mm9L7l-T-hxw6ZLF4K--kdPsI
+
+### Eliminar especialista
+DELETE http://127.0.0.1:8000/api/especialistas/5/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ3NDUxMzM2LCJpYXQiOjE3NDc0NDc3MzYsImp0aSI6ImU3NjRkNDM5OWExMTQ0MDM5ZjQ2ZjJhYWYwYjIyMTJiIiwidXNlcl9pZCI6MX0.9xTamFDN6I5VDIZC13mm9L7l-T-hxw6ZLF4K--kdPsI
+
+### Eliminar servicio
+DELETE http://127.0.0.1:8000/api/servicios/4/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ3NDUxMzM2LCJpYXQiOjE3NDc0NDc3MzYsImp0aSI6ImU3NjRkNDM5OWExMTQ0MDM5ZjQ2ZjJhYWYwYjIyMTJiIiwidXNlcl9pZCI6MX0.9xTamFDN6I5VDIZC13mm9L7l-T-hxw6ZLF4K--kdPsI
+
+### Obtener reserva por código
+GET http://localhost:8000/api/reservas/codigo/OJGIX6/
+Accept: application/json
+
+### Actualizar servicios
+PUT http://127.0.0.1:8000/api/servicios/5/
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ3NTI4Mjk5LCJpYXQiOjE3NDc1MjQ2OTksImp0aSI6IjlkNjNmNjdkZmU2MzQ3Zjg5Y2VhNmE3M2NlZTEwYmFmIiwidXNlcl9pZCI6MX0.oykFYYoS0mGBqSBUzxT2KIOMeemEi7NHEcHw5ZNoa6c
+
+{
+  "nombre": "Corte de cabello",
+  "duracion_estimada": 30,
+  "precio": 25.00,         
+  "activo": true
+}
+
+### Actualizar especialista
+PUT http://127.0.0.1:8000/api/especialistas/6/
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ3NTI4Mjk5LCJpYXQiOjE3NDc1MjQ2OTksImp0aSI6IjlkNjNmNjdkZmU2MzQ3Zjg5Y2VhNmE3M2NlZTEwYmFmIiwidXNlcl9pZCI6MX0.oykFYYoS0mGBqSBUzxT2KIOMeemEi7NHEcHw5ZNoa6c
+
+{
+  "nombre": "Carlos",
+  "apellido": "Rodríguez",
+  "activo": true
+}
