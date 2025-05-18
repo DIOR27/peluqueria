@@ -21,7 +21,7 @@ function NavLinks({ mobile = false }) {
       <a href="#our-schedule" className={linkClass} onClick={(e) => handleSmoothScroll(e, "our-schedule")}>Horarios</a>
       <a href="#our-team" className={linkClass} onClick={(e) => handleSmoothScroll(e, "our-team")}>Conócenos</a>
     </>
-  )
+  );
 }
 
 function ReservationPopup({ open, onClose }) {
@@ -100,10 +100,11 @@ function ReservationPopup({ open, onClose }) {
           <div className="bg-gray-100 p-4 rounded text-sm text-gray-800">
             <p><strong>Fecha:</strong> {reserva.fecha}</p>
             <p><strong>Hora:</strong> {reserva.hora}</p>
-            <p><strong>Estado:</strong> {reserva.estado}</p>
-            <p><strong>Especialista ID:</strong> {reserva.especialista_id}</p>
-            <p><strong>Servicio ID:</strong> {reserva.servicio_id}</p>
-            <p><strong>Email Cliente:</strong> {reserva.clientEmail}</p>
+            {/* TODO - update when we have more data we cannot just show the ids  */}
+            {/* <p><strong>Estado:</strong> {reserva.estado}</p> */}
+            {/* <p><strong>Especialista ID:</strong> {reserva.especialista_id}</p> */}
+            {/* <p><strong>Servicio ID:</strong> {reserva.servicio_id}</p> */}
+            {/* <p><strong>Email Cliente:</strong> {reserva.clientEmail}</p> */}
           </div>
         )}
       </div>

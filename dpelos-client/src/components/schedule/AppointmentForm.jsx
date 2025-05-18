@@ -7,8 +7,8 @@ import "./AppointmentForm.css";
 import dpelosn from "../../assets/dpelosn.svg";
 
 const initialValues = {
-  servicio: null,
-  especialista: null,
+  servicio: '',
+  especialista: '',
   fecha: "",
   hora: "",
   nombre: "",
@@ -18,22 +18,8 @@ const initialValues = {
 };
 
 const validationSchema = Yup.object({
-  servicio: Yup.object()
-    .shape({
-      label: Yup.string().required("Seleccione un servicio"),
-      value: Yup.string().required("Seleccione un servicio"),
-    })
-    .nullable()
-    .required("El servicio es requerido"),
-
-  especialista: Yup.object()
-    .shape({
-      label: Yup.string().required("Seleccione un especialista"),
-      value: Yup.string().required("Seleccione un especialista"),
-    })
-    .nullable()
-    .required("El especialista es requerido"),
-
+  servicio: Yup.string().required("El servicio es requerido"),
+  especialista: Yup.string().required("El especialista es requerido"),
   fecha: Yup.string().required("La fecha es requerida"),
   hora: Yup.string().required("La hora es requerida"),
   nombre: Yup.string().required("El nombre es requerido"),
@@ -51,11 +37,9 @@ const AppointmentForm = () => {
 
     fetch(`${import.meta.env.VITE_API_BASE_URL}/servicios/`)
       .then((res) => {
-        console.log("Servicios response status:", res.status);
         return res.json();
       })
       .then((data) => {
-        console.log("Servicios data:", data);
         const options = data.map((service) => ({
           value: service.id.toString(),
           label: service.nombre,
@@ -66,11 +50,9 @@ const AppointmentForm = () => {
 
     fetch(`${import.meta.env.VITE_API_BASE_URL}/especialistas/`)
       .then((res) => {
-        console.log("Especialistas response status:", res.status);
         return res.json();
       })
       .then((data) => {
-        console.log("Especialistas data:", data);
         const options = data.map((specialist) => ({
           value: specialist.id.toString(),
           label: `${specialist.nombre} ${specialist.apellido}`,
@@ -101,13 +83,12 @@ const AppointmentForm = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            especialista_id: values.especialista.value,
-            servicio_id: values.servicio.value,
+            especialista_id: values.especialista,
+            servicio_id: values.servicio,
             fecha: fechaFormateada,
             hora: horaFormateada,
             clientEmail: values.email,
-            nombre: values.nombre,
-            apellido: values.apellido,
+            clientName: `${values.nombre} ${values.apellido}`,
             telefono: values.telefono,
           }),
         }
@@ -133,8 +114,9 @@ const AppointmentForm = () => {
         initialValues={initialValues}
         validationSchema={validationSchema}
         onSubmit={handleSubmit}
+        validateOnChange
       >
-        {({ setFieldValue }) => (
+        {({ setFieldValue, isSubmitting }) => (
           <Form className="appointment-form">
             <img src={dpelosn} alt="Logo D'Pelos" className="logo" />
             <p className="subtitulo">Reserva tu cita en nuestra peluqueria ahora!</p>
@@ -208,8 +190,8 @@ const AppointmentForm = () => {
               </div>
             </div>
             <div className="button-container">
-              <button type="submit" className="agendar">
-                Agendar cita
+              <button type="submit" className="agendar" disabled={isSubmitting}>
+                {isSubmitting ? "Enviando" : "Agendar cita"}
               </button>
             </div>
           </Form>
