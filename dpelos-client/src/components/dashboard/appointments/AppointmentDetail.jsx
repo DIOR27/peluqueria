@@ -29,7 +29,8 @@ export default function AppointmentDetail({
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium">Información de la Cita</h3>
+        <h3 className="text-lg font-medium">{`Información de la Cita - ${appointment.codigo_reserva
+          }`}</h3>
         <div className="mt-4 space-y-4">
           <div>
             <h4 className="text-sm font-medium text-gray-500">Servicio</h4>
