@@ -3,7 +3,7 @@ POST http://127.0.0.1:8000/api/token/
 Content-Type: application/json
 
 {
-  "username": "Sinon",
+  "username": "juaneskfire@gmail.com",
   "password": "Konomisuzuki123"
 }
 
@@ -16,12 +16,12 @@ GET http://127.0.0.1:8000/api/especialistas/
 ### Consultar horas disponibles
 POST http://127.0.0.1:8000/api/reservas/horarios_disponibles/
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ3NDc5OTMzLCJpYXQiOjE3NDc0NzYzMzMsImp0aSI6IjMxMzkxNTM1YWYwMjQ5MTQ5NDhiMjkwODFjZGRmMmJiIiwidXNlcl9pZCI6MX0.9NPvK6ylVT5GI1rB5UAGj2e3IAgXOStQrX6aNvdlvDE
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ3NjU4OTY0LCJpYXQiOjE3NDc2NTUzNjQsImp0aSI6IjkzNjA5N2M3MjU2ZTRmNGNiZDkzMWM3YWFmZTcyOTcwIiwidXNlcl9pZCI6MX0.MdfzvbNVTiz-yDC9l1pxLOzcu-u_FSvwVKkjl53ukrA
 
 {
-  "fecha": "2025-05-20",
-  "servicio_id": 7,
-  "especialista_id": 6
+  "fecha": "2025-12-12",
+  "servicio_id": 1,
+  "especialista_id": 1
 }
 
 ### Crear reserva
@@ -97,10 +97,28 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiY
 ### Actualizar especialista
 PUT http://127.0.0.1:8000/api/especialistas/6/
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ3NTI4Mjk5LCJpYXQiOjE3NDc1MjQ2OTksImp0aSI6IjlkNjNmNjdkZmU2MzQ3Zjg5Y2VhNmE3M2NlZTEwYmFmIiwidXNlcl9pZCI6MX0.oykFYYoS0mGBqSBUzxT2KIOMeemEi7NHEcHw5ZNoa6c
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ3NjIxMzc3LCJpYXQiOjE3NDc2MTc3NzcsImp0aSI6ImUxNmM4NTkzZjJjODQxYjc4MGIwNDk4ZjY2NzUzZjhlIiwidXNlcl9pZCI6MX0.OGV1Vd0GGVN2Fj3l83aiE_7ZCfSSvtnTg-37jln7owo
+
 
 {
   "nombre": "Carlos",
   "apellido": "Rodríguez",
-  "activo": true
+  "activo": true,
+  "servicios_asociados": 5
 }
+
+### Crear usuarios
+POST http://127.0.0.1:8000/api/usuarios/
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ3NjUyMTk1LCJpYXQiOjE3NDc2NDg1OTUsImp0aSI6IjA3Njk0ZGFlMzQ0ODQ4N2RhOGY1NGNhMTFkMmQyMWRmIiwidXNlcl9pZCI6MX0.x7QG05Y_uRUJDcNmqW5XJWSqclDOhylBmBFNGxTQprU
+
+{
+  "email": "juaneskfire@gmail.com",
+  "password": "Konomisuzuki123",
+  "first_name": "Juan",
+  "last_name": "Escaffi"
+}
+
+### Obtener usuarios
+GET http://127.0.0.1:8000/api/usuarios/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ3NjU4OTY0LCJpYXQiOjE3NDc2NTUzNjQsImp0aSI6IjkzNjA5N2M3MjU2ZTRmNGNiZDkzMWM3YWFmZTcyOTcwIiwidXNlcl9pZCI6MX0.MdfzvbNVTiz-yDC9l1pxLOzcu-u_FSvwVKkjl53ukrA

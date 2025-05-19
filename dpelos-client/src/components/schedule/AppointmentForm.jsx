@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Formik, Form } from "formik";
 import * as Yup from "yup";
 import FormInput from "../ui/FormInput";
 import FormSelect from "../ui/FormSelect";
 import "./AppointmentForm.css";
 import dpelosn from "../../assets/dpelosn.svg";
+import useAppointmentStore from "../../stores/appointmentStore";
 
 const initialValues = {
   servicio: '',
@@ -29,16 +30,14 @@ const validationSchema = Yup.object({
 });
 
 const AppointmentForm = () => {
-  const [selectedHour, setSelectedHour] = useState(null);
-  const [servicesOptions, setServicesOptions] = useState([]);
-  const [specialistsOptions, setSpecialistsOptions] = useState([]);
+  const { availableTimeSlots, getAvailableTimes } = useAppointmentStore();
+
+  const [servicesOptions, setServicesOptions] = React.useState([]);
+  const [specialistsOptions, setSpecialistsOptions] = React.useState([]);
 
   useEffect(() => {
-
     fetch(`${import.meta.env.VITE_API_BASE_URL}/servicios/`)
-      .then((res) => {
-        return res.json();
-      })
+      .then((res) => res.json())
       .then((data) => {
         const options = data.map((service) => ({
           value: service.id.toString(),
@@ -49,9 +48,7 @@ const AppointmentForm = () => {
       .catch((error) => console.error("Error cargando servicios:", error));
 
     fetch(`${import.meta.env.VITE_API_BASE_URL}/especialistas/`)
-      .then((res) => {
-        return res.json();
-      })
+      .then((res) => res.json())
       .then((data) => {
         const options = data.map((specialist) => ({
           value: specialist.id.toString(),
@@ -62,9 +59,16 @@ const AppointmentForm = () => {
       .catch((error) => console.error("Error cargando especialistas:", error));
   }, []);
 
-  const handleHourClick = (hour, setFieldValue) => {
-    setSelectedHour(hour);
-    setFieldValue("hora", hour);
+  const fetchAvailableSlots = async (values) => {
+    const {
+      fecha,
+      especialista: especialista_id,
+      servicio: servicio_id,
+    } = values;
+
+    if (fecha && especialista_id && servicio_id) {
+      await getAvailableTimes({ fecha, especialista_id, servicio_id });
+    }
   };
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
@@ -97,7 +101,6 @@ const AppointmentForm = () => {
       if (response.ok) {
         alert("Reserva creada exitosamente");
         resetForm();
-        setSelectedHour(null);
       } else {
         alert("Error: " + (data.error || "No se pudo crear la reserva"));
       }
@@ -108,6 +111,12 @@ const AppointmentForm = () => {
     }
   };
 
+  // Función para formatear la hora y quitar los segundos ":00"
+  const formatHour = (hour) => {
+    if (!hour) return "";
+    return hour.length === 8 ? hour.slice(0, 5) : hour;
+  };
+
   return (
     <section className="form-container">
       <Formik
@@ -116,86 +125,88 @@ const AppointmentForm = () => {
         onSubmit={handleSubmit}
         validateOnChange
       >
-        {({ setFieldValue, isSubmitting }) => (
-          <Form className="appointment-form">
-            <img src={dpelosn} alt="Logo D'Pelos" className="logo" />
-            <p className="subtitulo">Reserva tu cita en nuestra peluqueria ahora!</p>
-            <div className="form-row">
-              <div className="form-col">
-                <FormInput
-                  label="Nombre"
-                  name="nombre"
-                  placeholder="Digite su nombre"
-                />
-                <FormInput
-                  label="Apellido"
-                  name="apellido"
-                  placeholder="Digite su apellido"
-                />
-                <FormInput
-                  label="Email"
-                  name="email"
-                  type="email"
-                  placeholder="Digite su correo electrónico"
-                />
-                <FormInput
-                  label="Teléfono"
-                  name="telefono"
-                  type="tel"
-                  placeholder="Digite su teléfono"
-                />
-              </div>
-              <div className="form-col">
-                <FormSelect
-                  label="Servicio"
-                  name="servicio"
-                  options={servicesOptions}
-                  placeholder="Elija un servicio"
-                />
-                <FormSelect
-                  label="Especialista"
-                  name="especialista"
-                  options={specialistsOptions}
-                  placeholder="Elija un especialista"
-                />
-                <FormInput
-                  label="Fecha"
-                  name="fecha"
-                  type="date"
-                  placeholder="Seleccione una fecha"
-                />
-                <div className="horas">
-                  {[
-                    "08:00",
-                    "09:30",
-                    "11:00",
-                    "12:30",
-                    "14:00",
-                    "15:30",
-                    "17:00",
-                    "19:30",
-                    "21:00",
-                    "22:30",
-                  ].map((hour) => (
-                    <button
-                      key={hour}
-                      type="button"
-                      className={`hour-button ${selectedHour === hour ? "selected" : ""}`}
-                      onClick={() => handleHourClick(hour, setFieldValue)}
-                    >
-                      {hour}
-                    </button>
-                  ))}
+        {({ values, setFieldValue, isSubmitting }) => {
+          useEffect(() => {
+            fetchAvailableSlots(values);
+          }, [values.servicio, values.especialista, values.fecha]);
+
+          return (
+            <Form className="appointment-form">
+              <img src={dpelosn} alt="Logo D'Pelos" className="logo" />
+              <p className="subtitulo">Reserva tu cita en nuestra peluqueria ahora!</p>
+              <div className="form-row">
+                <div className="form-col">
+                  <FormInput
+                    label="Nombre"
+                    name="nombre"
+                    placeholder="Digite su nombre"
+                  />
+                  <FormInput
+                    label="Apellido"
+                    name="apellido"
+                    placeholder="Digite su apellido"
+                  />
+                  <FormInput
+                    label="Email"
+                    name="email"
+                    type="email"
+                    placeholder="Digite su correo electrónico"
+                  />
+                  <FormInput
+                    label="Teléfono"
+                    name="telefono"
+                    type="tel"
+                    placeholder="Digite su teléfono"
+                  />
+                </div>
+                <div className="form-col">
+                  <FormSelect
+                    label="Servicio"
+                    name="servicio"
+                    options={servicesOptions}
+                    placeholder="Elija un servicio"
+                  />
+                  <FormSelect
+                    label="Especialista"
+                    name="especialista"
+                    options={specialistsOptions}
+                    placeholder="Elija un especialista"
+                  />
+                  <FormInput
+                    label="Fecha"
+                    name="fecha"
+                    type="date"
+                    placeholder="Seleccione una fecha"
+                  />
+                  <label className="block mb-1 font-semibold text-gray-700">Hora</label>
+                  <div className="horas">
+                    {availableTimeSlots && availableTimeSlots.length > 0 ? (
+                      availableTimeSlots.map((time) => (
+                        <button
+                          key={time}
+                          type="button"
+                          className={`hour-button ${
+                            values.hora === time ? "selected" : ""
+                          }`}
+                          onClick={() => setFieldValue("hora", time)}
+                        >
+                          {formatHour(time)}
+                        </button>
+                      ))
+                    ) : (
+                      <p className="text-gray-500">No hay horas disponibles</p>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="button-container">
-              <button type="submit" className="agendar" disabled={isSubmitting}>
-                {isSubmitting ? "Enviando" : "Agendar cita"}
-              </button>
-            </div>
-          </Form>
-        )}
+              <div className="button-container">
+                <button type="submit" className="agendar" disabled={isSubmitting}>
+                  {isSubmitting ? "Enviando" : "Agendar cita"}
+                </button>
+              </div>
+            </Form>
+          );
+        }}
       </Formik>
     </section>
   );
